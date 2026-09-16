@@ -1,0 +1,6 @@
+{
+  "name": "Coffee ID - KTP Kopi",
+  "description": "Aplikasi PWA Identitas & KTP Kopi dengan mode tampilan berjenjang (Casual, Beginner, Enthusiast), Smart AI Auto-Complete, ekspor kartu PDF/Gambar, pencarian, dan penilaian rasa.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

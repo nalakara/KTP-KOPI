@@ -1,0 +1,81 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --bg-primary: #F0E5C5;
+    --color-secondary: #332B1C;
+    --color-tertiary: #E2F4CB;
+    --color-neutral: #121212;
+    --border-main: #332B1C;
+  }
+
+  body {
+    font-family: 'IBM Plex Mono', monospace, system-ui;
+    font-size: 12px;
+    line-height: 16px;
+    font-weight: 300;
+    background-color: #F0E5C5;
+    color: #332B1C;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Barlow Condensed', sans-serif;
+    letter-spacing: -0.025em;
+  }
+}
+
+/* Typography tokens */
+.font-display {
+  font-family: 'Barlow Condensed', sans-serif;
+  letter-spacing: -0.025em;
+}
+
+.font-serif-display {
+  font-family: 'Barlow Condensed', sans-serif;
+  letter-spacing: -0.025em;
+}
+
+.font-mono-code {
+  font-family: 'IBM Plex Mono', monospace;
+}
+
+/* Gradient border shell & elevated surface */
+.card-shell {
+  background: linear-gradient(168deg, rgb(240, 229, 200) 0%, rgb(233, 220, 186) 46%, rgb(226, 210, 172) 100%);
+  border: 1px solid #332B1C;
+  border-radius: 0px;
+  box-shadow: rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(52, 40, 20, 0.55) 0px 1px 2px 0px inset, rgba(52, 40, 20, 0.25) 0px 2px 3px 0px, rgba(52, 40, 20, 0.38) 0px 18px 44px 0px;
+  padding: 0px;
+}
+
+.card-surface {
+  background: rgba(240, 229, 197, 0.55);
+  border: 1px solid rgb(51, 43, 28);
+  border-radius: 0px;
+  padding: 9.5px;
+}
+
+.elevated-panel {
+  background-color: #F0E5C5;
+  border: 1px solid #332B1C;
+  border-radius: 0px;
+  box-shadow: rgba(52, 40, 20, 0.25) 0px 1px 2px 0px inset, rgba(52, 40, 20, 0.15) 0px 2px 3px 0px;
+}
+
+/* 9999px rounded pills for buttons & controls */
+.pill-control {
+  border-radius: 9999px;
+  border: 1px solid #332B1C;
+  transition: all 150ms ease;
+}
+
+@media print {
+  body {
+    background: white !important;
+    color: black !important;
+  }
+  .no-print {
+    display: none !important;
+  }
+}
+
