@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
-import { CoffeeCardItem } from '../types';
+import { CoffeeCardItem, Language } from '../types';
 import { RatingStars } from './RatingStars';
 import { RoastLevelBadge } from './RoastLevelBadge';
 import { SensoryBar } from './SensoryBar';
 import { exportCardAsImage, exportCardAsPDF, exportCardAsTXT } from '../utils/exportCard';
+import { getLocalizedCoffee } from '../utils/cardLocalization';
+import { TRANSLATIONS } from '../i18n/translations';
 import {
   Download,
   FileText,
@@ -18,32 +20,54 @@ import {
   Thermometer,
   Scale,
   Sparkles,
+  Globe2,
 } from 'lucide-react';
 
 interface EnthusiastCoffeeCardProps {
   coffee: CoffeeCardItem;
   onRate: (id: string, rating: number) => void;
   onSelect: (coffee: CoffeeCardItem) => void;
+  lang?: Language;
 }
 
 export const EnthusiastCoffeeCard: React.FC<EnthusiastCoffeeCardProps> = ({
   coffee,
   onRate,
   onSelect,
+  lang = 'id',
 }) => {
+  const currentLang: Language = lang as Language;
   const [isExporting, setIsExporting] = useState(false);
   const [showExportMenu, setShowExportMenu] = useState(false);
   const cardId = `ktp-card-${coffee.id}`;
+
+  const t = TRANSLATIONS[currentLang];
+  const item = getLocalizedCoffee(coffee, currentLang);
 
   const handleExport = async (format: 'png' | 'jpeg' | 'pdf' | 'txt') => {
     setIsExporting(true);
     setShowExportMenu(false);
     if (format === 'pdf') {
-      await exportCardAsPDF(cardId, `${coffee.name}_KTP_Kopi_Enthusiast`, coffee, 'enthusiast');
+      await exportCardAsPDF(
+        cardId,
+        `${item.name}_${currentLang === 'en' ? 'Passport_Enthusiast' : 'KTP_Kopi_Enthusiast'}`,
+        coffee,
+        'enthusiast',
+        currentLang
+      );
     } else if (format === 'txt') {
-      exportCardAsTXT(`${coffee.name}_KTP_Kopi_Enthusiast`, coffee, 'enthusiast');
+      exportCardAsTXT(
+        `${item.name}_${currentLang === 'en' ? 'Passport_Enthusiast' : 'KTP_Kopi_Enthusiast'}`,
+        coffee,
+        'enthusiast',
+        currentLang
+      );
     } else {
-      await exportCardAsImage(cardId, `${coffee.name}_KTP_Kopi_Enthusiast`, format);
+      await exportCardAsImage(
+        cardId,
+        `${item.name}_${currentLang === 'en' ? 'Passport_Enthusiast' : 'KTP_Kopi_Enthusiast'}`,
+        format
+      );
     }
     setIsExporting(false);
   };
@@ -54,29 +78,29 @@ export const EnthusiastCoffeeCard: React.FC<EnthusiastCoffeeCardProps> = ({
       className="group relative card-shell flex flex-col justify-between"
     >
       <div className="card-surface flex-1 flex flex-col justify-between !p-0 overflow-hidden">
-        {/* Official Top Header Banner (KTP Style) */}
+        {/* Official Top Header Banner (KTP / Passport Style) */}
         <div className="bg-[#332B1C] p-3 text-[#F0E5C5] border-b border-[#332B1C]">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <div className="w-7 h-7 rounded-full bg-[#F0E5C5]/10 border border-[#F0E5C5]/40 flex items-center justify-center font-bold text-xs text-[#E2F4CB]">
-                ☕
+                {lang === 'en' ? '🧭' : '☕'}
               </div>
               <div>
                 <h4 className="text-[11px] uppercase tracking-wider font-display font-medium text-[#E2F4CB] leading-tight">
-                  REPUBLIK KOPI INDONESIA
+                  {item.passportHeaderTop}
                 </h4>
                 <p className="text-[9px] uppercase tracking-wide text-[#F0E5C5]/75 font-mono-code leading-tight">
-                  KARTU TANDA PENGENAL KOPI
+                  {item.passportHeaderSub}
                 </p>
               </div>
             </div>
 
             <div className="text-right">
               <span className="text-[9px] font-mono-code block text-[#F0E5C5]/70 uppercase">
-                NO. KTP
+                {item.passportNumberBadge}
               </span>
               <span className="font-mono-code text-[11px] font-normal tracking-wider text-[#F0E5C5]">
-                {coffee.ktpNumber || 'ID-SPEC-001'}
+                {coffee.ktpNumber || (lang === 'en' ? 'CID-SPEC-001' : 'ID-SPEC-001')}
               </span>
             </div>
           </div>
@@ -89,17 +113,17 @@ export const EnthusiastCoffeeCard: React.FC<EnthusiastCoffeeCardProps> = ({
             <div className="flex items-start justify-between gap-2">
               <div className="space-y-0.5">
                 <span className="inline-block px-2 py-0.5 rounded-full text-[9px] font-mono-code font-normal uppercase tracking-wider bg-[#E2F4CB] text-[#332B1C] border border-[#332B1C]">
-                  {coffee.type} • {coffee.originCountry}
+                  {item.typeFormatted} • {item.originCountry}
                 </span>
                 <h3
                   onClick={() => onSelect(coffee)}
                   className="text-2xl font-medium text-[#332B1C] font-display cursor-pointer hover:opacity-80 transition tracking-tight leading-tight pt-0.5"
                 >
-                  {coffee.name}
+                  {item.name}
                 </h3>
                 <p className="text-[11px] text-[#332B1C]/75 flex items-center gap-1 font-mono-code">
                   <Compass className="w-3 h-3 text-[#332B1C]" />
-                  <span>{coffee.region}</span>
+                  <span>{item.region}</span>
                 </p>
               </div>
 
@@ -109,186 +133,208 @@ export const EnthusiastCoffeeCard: React.FC<EnthusiastCoffeeCardProps> = ({
                   <div className="flex items-center justify-center text-[#332B1C] mb-0.5">
                     <Award className="w-3.5 h-3.5" />
                   </div>
-                  <span className="block text-sm font-semibold font-mono-code text-[#332B1C] leading-none">
-                    {coffee.scaScore.toFixed(2)}
-                  </span>
-                  <span className="text-[8px] font-mono-code uppercase tracking-wider text-[#332B1C] block mt-0.5">
+                  <span className="text-[9px] font-mono-code uppercase block text-[#332B1C]/80 font-medium">
                     SCA SCORE
                   </span>
+                  <span className="text-base font-bold font-mono-code text-[#332B1C] leading-none">
+                    {coffee.scaScore.toFixed(1)}
+                  </span>
                 </div>
               )}
             </div>
 
-            {/* Micro-Lot Spec Grid (Table Style) */}
-            <div className="mt-2.5 border border-[#332B1C] bg-[#F0E5C5] divide-y divide-[#332B1C] text-[11px] font-mono-code">
-              <div className="grid grid-cols-2 divide-x divide-[#332B1C] p-2">
-                <div className="space-y-0.5">
-                  <span className="text-[9px] uppercase tracking-wider text-[#332B1C]/70 block flex items-center gap-1">
-                    <Mountain className="w-2.5 h-2.5" /> Altitude
+            {/* Official KTP / Passport Metadata Spec Table */}
+            <div className="mt-2.5 border border-[#332B1C] divide-y divide-[#332B1C] text-[11px] font-mono-code bg-[#F0E5C5]">
+              <div className="grid grid-cols-2 divide-x divide-[#332B1C]">
+                <div className="p-1.5 flex items-center justify-between">
+                  <span className="text-[10px] uppercase text-[#332B1C]/60 font-medium">
+                    {t.specProcess}
                   </span>
-                  <p className="font-normal text-[#332B1C]">
-                    {coffee.altitudeRange}
-                  </p>
+                  <span className="font-medium text-[#332B1C] truncate max-w-[110px] text-right">
+                    {item.process}
+                  </span>
                 </div>
-                <div className="pl-2 space-y-0.5">
-                  <span className="text-[9px] uppercase tracking-wider text-[#332B1C]/70 block flex items-center gap-1">
-                    <Dna className="w-2.5 h-2.5" /> Varietal
+                <div className="p-1.5 flex items-center justify-between">
+                  <span className="text-[10px] uppercase text-[#332B1C]/60 font-medium flex items-center gap-1">
+                    <Mountain className="w-3 h-3 text-[#332B1C]" />
+                    <span>{t.specElevation}</span>
                   </span>
-                  <p className="font-normal text-[#332B1C] truncate" title={coffee.varietal}>
-                    {coffee.varietal || 'Heirloom / Typica'}
-                  </p>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 divide-x divide-[#332B1C] p-2">
-                <div className="space-y-0.5">
-                  <span className="text-[9px] uppercase tracking-wider text-[#332B1C]/70 block">
-                    Proses Pasca Panen
+                  <span className="font-medium text-[#332B1C] text-right truncate">
+                    {item.altitudeRange}
                   </span>
-                  <p className="font-normal text-[#332B1C]">
-                    {coffee.process}
-                  </p>
-                </div>
-                <div className="pl-2 space-y-0.5">
-                  <span className="text-[9px] uppercase tracking-wider text-[#332B1C]/70 block">
-                    Tingkat Sangrai
-                  </span>
-                  <RoastLevelBadge level={coffee.roastLevel} />
                 </div>
               </div>
 
-              {(coffee.producer || coffee.roaster) && (
-                <div className="grid grid-cols-2 divide-x divide-[#332B1C] p-2">
-                  <div className="space-y-0.5">
-                    <span className="text-[9px] uppercase tracking-wider text-[#332B1C]/70 block">
-                      Produser / Farm
-                    </span>
-                    <p className="font-normal text-[#332B1C] truncate" title={coffee.producer}>
-                      {coffee.producer || '-'}
-                    </p>
-                  </div>
-                  <div className="pl-2 space-y-0.5">
-                    <span className="text-[9px] uppercase tracking-wider text-[#332B1C]/70 block">
-                      Roastery / Crop
-                    </span>
-                    <p className="font-normal text-[#332B1C] truncate">
-                      {coffee.roaster || 'Specialty Roaster'} {coffee.harvestYear ? `(${coffee.harvestYear})` : ''}
-                    </p>
-                  </div>
+              <div className="grid grid-cols-2 divide-x divide-[#332B1C]">
+                <div className="p-1.5 flex items-center justify-between">
+                  <span className="text-[10px] uppercase text-[#332B1C]/60 font-medium flex items-center gap-1">
+                    <Dna className="w-3 h-3 text-[#332B1C]" />
+                    <span>{t.specVarietal}</span>
+                  </span>
+                  <span className="font-medium text-[#332B1C] truncate max-w-[110px] text-right">
+                    {coffee.varietal}
+                  </span>
+                </div>
+                <div className="p-1.5 flex items-center justify-between">
+                  <span className="text-[10px] uppercase text-[#332B1C]/60 font-medium">
+                    {t.specRoast}
+                  </span>
+                  <RoastLevelBadge level={coffee.roastLevel} lang={lang} />
+                </div>
+              </div>
+
+              {coffee.producer && (
+                <div className="p-1.5 flex items-center justify-between">
+                  <span className="text-[10px] uppercase text-[#332B1C]/60 font-medium">
+                    {t.specProducer}
+                  </span>
+                  <span className="font-medium text-[#332B1C] truncate max-w-[190px]">
+                    {coffee.producer}
+                  </span>
                 </div>
               )}
             </div>
 
-            {/* Flavour Matrix Notes */}
+            {/* Sensory Balance Sliders */}
+            <div className="mt-2.5 space-y-1.5 p-2 rounded-none bg-[#F0E5C5] border border-[#332B1C]">
+              <SensoryBar label={t.specAcidity} value={coffee.acidity} />
+              <SensoryBar label={t.specBody} value={coffee.body} />
+              <SensoryBar label={t.specSweetness} value={coffee.sweetness} />
+            </div>
+
+            {/* Flavour Notes Badges */}
             <div className="mt-2.5">
-              <div className="flex items-center justify-between mb-1">
-                <span className="text-[9px] font-mono-code uppercase tracking-wider text-[#332B1C]/70 flex items-center gap-1">
-                  <Sparkles className="w-2.5 h-2.5 text-[#332B1C]" /> Cupping Flavour Profile
-                </span>
-                <div className="flex items-center gap-1">
-                  <RatingStars
-                    value={coffee.rating}
-                    onChange={(newRating) => onRate(coffee.id, newRating)}
-                    size="sm"
-                  />
-                </div>
-              </div>
+              <span className="text-[10px] uppercase font-mono-code text-[#332B1C]/70 block mb-1 font-medium">
+                {t.flavourNotesLabel}
+              </span>
               <div className="flex flex-wrap gap-1">
-                {coffee.flavourNotes.map((note, idx) => (
+                {item.flavourNotes.map((note, idx) => (
                   <span
                     key={idx}
-                    className="px-2 py-0.5 rounded-full text-[10px] font-mono-code font-light bg-[#332B1C] text-[#F0E5C5] border border-[#332B1C]"
+                    className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-mono-code bg-[#E2F4CB] text-[#332B1C] border border-[#332B1C]"
                   >
-                    {note}
+                    <Sparkles className="w-2.5 h-2.5 text-[#332B1C]" />
+                    <span>{note}</span>
                   </span>
                 ))}
               </div>
             </div>
 
-            {/* Dial-in Brew Parameters (Barista Recipe) */}
-            {coffee.brewRecipe && (
-              <div className="mt-2.5 p-2 border border-[#332B1C] bg-[#F0E5C5] space-y-1.5 font-mono-code">
-                <div className="flex items-center justify-between text-[11px]">
-                  <span className="font-medium text-[#332B1C] flex items-center gap-1">
-                    <Timer className="w-3 h-3 text-[#332B1C]" /> Dial-in Recipe
+            {/* Barista Brew Recipe Specs Box */}
+            {item.brewRecipe && (
+              <div className="mt-2.5 p-2 rounded-none bg-[#F0E5C5] border border-[#332B1C] space-y-1">
+                <div className="flex items-center justify-between text-[10px] font-mono-code uppercase font-bold text-[#332B1C] border-b border-[#332B1C]/40 pb-1">
+                  <span className="flex items-center gap-1">
+                    <Scale className="w-3 h-3 text-[#332B1C]" />
+                    <span>{t.specBrewFormula}</span>
                   </span>
-                  <span className="text-[10px] text-[#332B1C]/80">
-                    {coffee.recommendedBrew?.[0] || 'Filter V60'}
+                  <span className="text-[9px] text-[#332B1C]/75 font-normal">
+                    {coffee.recommendedBrew?.[0] || 'V60'}
                   </span>
                 </div>
-                <div className="grid grid-cols-3 gap-1 text-[10px] text-[#332B1C] text-center pt-1 border-t border-[#332B1C]/30">
-                  <div className="p-1 border border-[#332B1C] bg-[#F0E5C5]">
-                    <span className="text-[8px] uppercase text-[#332B1C]/70 block">Rasio</span>
-                    <span className="font-medium text-[#332B1C]">{coffee.brewRecipe.ratio}</span>
+                <div className="grid grid-cols-3 gap-1 pt-1 text-[10px] font-mono-code">
+                  <div>
+                    <span className="text-[#332B1C]/60 block text-[9px]">{t.specRatio}</span>
+                    <span className="font-medium text-[#332B1C]">{item.brewRecipe.ratio}</span>
                   </div>
-                  <div className="p-1 border border-[#332B1C] bg-[#F0E5C5]">
-                    <span className="text-[8px] uppercase text-[#332B1C]/70 block">Suhu Air</span>
-                    <span className="font-medium text-[#332B1C]">{coffee.brewRecipe.temperature}</span>
+                  <div>
+                    <span className="text-[#332B1C]/60 block text-[9px] flex items-center gap-0.5">
+                      <Thermometer className="w-2.5 h-2.5 text-[#332B1C]" />
+                      <span>{t.specTemp}</span>
+                    </span>
+                    <span className="font-medium text-[#332B1C]">{item.brewRecipe.temperature}</span>
                   </div>
-                  <div className="p-1 border border-[#332B1C] bg-[#F0E5C5]">
-                    <span className="text-[8px] uppercase text-[#332B1C]/70 block">Waktu</span>
-                    <span className="font-medium text-[#332B1C]">{coffee.brewRecipe.time}</span>
+                  <div>
+                    <span className="text-[#332B1C]/60 block text-[9px] flex items-center gap-0.5">
+                      <Timer className="w-2.5 h-2.5 text-[#332B1C]" />
+                      <span>{t.specTime}</span>
+                    </span>
+                    <span className="font-medium text-[#332B1C]">{item.brewRecipe.time}</span>
                   </div>
                 </div>
-                {coffee.brewRecipe.note && (
-                  <p className="text-[10px] text-[#332B1C]/80 italic mt-0.5">
-                    💡 {coffee.brewRecipe.note}
+                {item.brewRecipe.note && (
+                  <p className="text-[10px] font-mono-code text-[#332B1C]/80 italic pt-1 border-t border-[#332B1C]/20">
+                    💡 {item.brewRecipe.note}
                   </p>
                 )}
               </div>
             )}
-
-            {/* Sensory Scales */}
-            <div className="grid grid-cols-3 gap-2 pt-2">
-              <SensoryBar label="Acidity" value={coffee.acidity} />
-              <SensoryBar label="Body" value={coffee.body} />
-              <SensoryBar label="Sweetness" value={coffee.sweetness} />
-            </div>
           </div>
 
-          {/* Official Bottom Bar */}
-          <div className="pt-2 border-t border-[#332B1C] flex items-center justify-between gap-2 no-print">
-            <div className="flex items-center gap-1 text-[10px] font-mono-code text-[#332B1C] font-medium">
-              <ShieldCheck className="w-3.5 h-3.5 text-[#332B1C]" />
-              <span>VERIFIED SPECIALTY IDENTITY</span>
+          {/* Bottom Security / Barcode & Registration Stamp */}
+          <div className="pt-2 border-t border-[#332B1C] space-y-2">
+            <div className="flex items-center justify-between gap-2">
+              {/* Fake Decorative Barcode with KTP / Passport stamp */}
+              <div className="flex items-center gap-2">
+                <div className="h-6 flex items-end gap-[2px] opacity-70">
+                  {[3, 7, 2, 5, 8, 3, 6, 2, 7, 4, 8, 3, 5, 6, 2].map((h, i) => (
+                    <div
+                      key={i}
+                      className="w-[2px] bg-[#332B1C]"
+                      style={{ height: `${h * 2.5}px` }}
+                    />
+                  ))}
+                </div>
+                <div className="text-[9px] font-mono-code text-[#332B1C]/60">
+                  <span>{item.watermarkText}</span>
+                  <br />
+                  <span className="text-[#332B1C] font-semibold">{coffee.ktpNumber}</span>
+                </div>
+              </div>
+
+              {/* Verified Stamp Badge */}
+              <div className="px-2 py-0.5 border border-dashed border-[#332B1C] rounded-none text-[9px] font-mono-code uppercase font-bold text-[#332B1C] flex items-center gap-1 bg-[#E2F4CB]">
+                <ShieldCheck className="w-3 h-3 text-[#332B1C]" />
+                <span>{item.provenanceStampText}</span>
+              </div>
             </div>
 
-            {/* Export dropdown */}
-            <div className="relative">
+            {/* Actions Bar */}
+            <div className="pt-1.5 flex items-center justify-between gap-2 no-print border-t border-[#332B1C]/30">
               <button
-                onClick={() => setShowExportMenu(!showExportMenu)}
-                disabled={isExporting}
-                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full border border-[#332B1C] bg-[#F0E5C5] hover:bg-[#332B1C] hover:text-[#F0E5C5] text-[10px] font-mono-code transition"
+                onClick={() => onSelect(coffee)}
+                className="text-[11px] font-mono-code font-medium text-[#332B1C] hover:underline transition"
               >
-                <Download className="w-3 h-3 text-[#332B1C]" />
-                <span>{isExporting ? '...' : 'Ekspor KTP'}</span>
+                {t.viewDetailsBtn}
               </button>
 
-              {showExportMenu && (
-                <div className="absolute right-0 bottom-full mb-1 w-44 rounded-none bg-[#F0E5C5] p-1 border border-[#332B1C] shadow-lg z-20 space-y-1 font-mono-code">
-                  <button
-                    onClick={() => handleExport('png')}
-                    className="w-full flex items-center gap-2 px-2 py-1 text-[11px] text-left text-[#332B1C] hover:bg-[#332B1C] hover:text-[#F0E5C5] transition"
-                  >
-                    <ImageIcon className="w-3 h-3" />
-                    <span>Gambar (PNG)</span>
-                  </button>
-                  <button
-                    onClick={() => handleExport('pdf')}
-                    className="w-full flex items-center gap-2 px-2 py-1 text-[11px] text-left text-[#332B1C] hover:bg-[#332B1C] hover:text-[#F0E5C5] transition"
-                  >
-                    <FileText className="w-3 h-3" />
-                    <span>Paspor KTP (PDF)</span>
-                  </button>
-                  <button
-                    onClick={() => handleExport('txt')}
-                    className="w-full flex items-center gap-2 px-2 py-1 text-[11px] text-left text-[#332B1C] hover:bg-[#332B1C] hover:text-[#F0E5C5] transition"
-                  >
-                    <FileCode className="w-3 h-3" />
-                    <span>Teks Kopi (TXT)</span>
-                  </button>
-                </div>
-              )}
+              <div className="relative">
+                <button
+                  onClick={() => setShowExportMenu(!showExportMenu)}
+                  disabled={isExporting}
+                  className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full border border-[#332B1C] bg-[#F0E5C5] hover:bg-[#332B1C] hover:text-[#F0E5C5] text-[10px] font-mono-code transition"
+                  title={t.exportBtn}
+                >
+                  <Download className="w-3 h-3" />
+                  <span>{isExporting ? '...' : t.exportBtn}</span>
+                </button>
+
+                {showExportMenu && (
+                  <div className="absolute right-0 bottom-full mb-1 w-44 rounded-none bg-[#F0E5C5] p-1 border border-[#332B1C] shadow-lg z-20 space-y-1 font-mono-code">
+                    <button
+                      onClick={() => handleExport('png')}
+                      className="w-full flex items-center gap-2 px-2 py-1 text-[11px] text-left text-[#332B1C] hover:bg-[#332B1C] hover:text-[#F0E5C5] transition"
+                    >
+                      <ImageIcon className="w-3 h-3" />
+                      <span>{t.exportPng}</span>
+                    </button>
+                    <button
+                      onClick={() => handleExport('pdf')}
+                      className="w-full flex items-center gap-2 px-2 py-1 text-[11px] text-left text-[#332B1C] hover:bg-[#332B1C] hover:text-[#F0E5C5] transition"
+                    >
+                      <FileText className="w-3 h-3" />
+                      <span>{t.exportPdf}</span>
+                    </button>
+                    <button
+                      onClick={() => handleExport('txt')}
+                      className="w-full flex items-center gap-2 px-2 py-1 text-[11px] text-left text-[#332B1C] hover:bg-[#332B1C] hover:text-[#F0E5C5] transition"
+                    >
+                      <FileCode className="w-3 h-3" />
+                      <span>{t.exportTxt}</span>
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>

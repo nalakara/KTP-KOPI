@@ -1,42 +1,69 @@
 import React, { useState } from 'react';
-import { CoffeeCardItem, CoffeeType, RoastLevel } from '../types';
-import { Sparkles, X, Loader2, Check, AlertCircle, Wand2, Info } from 'lucide-react';
+import { CoffeeCardItem, CoffeeType, RoastLevel, Language } from '../types';
+import { TRANSLATIONS } from '../i18n/translations';
+import {
+  X,
+  Sparkles,
+  Wand2,
+  Loader2,
+  AlertCircle,
+  Check,
+  Languages,
+} from 'lucide-react';
 import confetti from 'canvas-confetti';
 
 interface AddCoffeeModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSave: (coffee: CoffeeCardItem) => void;
+  lang?: Language;
 }
 
 export const AddCoffeeModal: React.FC<AddCoffeeModalProps> = ({
   isOpen,
   onClose,
   onSave,
+  lang = 'id',
 }) => {
-  // Input fields for Smart AI auto-fill
-  const [inputName, setInputName] = useState('');
-  const [inputProcess, setInputProcess] = useState('');
-  const [inputRoastLevel, setInputRoastLevel] = useState<RoastLevel>('Light-Medium');
-  const [inputOrigin, setInputOrigin] = useState('');
+  const t = TRANSLATIONS[lang];
 
-  // Detailed fields (auto-completed or edited)
+  // Basic Details State
+  const [inputName, setInputName] = useState('');
+  const [inputOrigin, setInputOrigin] = useState('Indonesia');
   const [region, setRegion] = useState('');
+  const [regionEn, setRegionEn] = useState('');
   const [altitudeRange, setAltitudeRange] = useState('');
+  const [altitudeRangeEn, setAltitudeRangeEn] = useState('');
   const [coffeeType, setCoffeeType] = useState<CoffeeType>('Arabika');
+  const [inputProcess, setInputProcess] = useState('Natural');
+  const [processEn, setProcessEn] = useState('');
+  const [inputRoastLevel, setInputRoastLevel] = useState<RoastLevel>('Medium');
+
+  // Specs & Notes
   const [varietal, setVarietal] = useState('');
   const [producer, setProducer] = useState('');
   const [generalCharacter, setGeneralCharacter] = useState('');
+  const [generalCharacterEn, setGeneralCharacterEn] = useState('');
   const [flavourNotesText, setFlavourNotesText] = useState('');
-  const [scaScore, setScaScore] = useState<string>('86.0');
-  const [acidity, setAcidity] = useState<number>(3);
-  const [body, setBody] = useState<number>(3);
-  const [sweetness, setSweetness] = useState<number>(4);
-  const [recommendedBrew, setRecommendedBrew] = useState('V60, Aeropress');
+  const [flavourNotesTextEn, setFlavourNotesTextEn] = useState('');
+  const [scaScore, setScaScore] = useState('');
+
+  // Scales (1 - 5)
+  const [acidity, setAcidity] = useState(3);
+  const [body, setBody] = useState(3);
+  const [sweetness, setSweetness] = useState(4);
+
+  // Casual & Serving
   const [casualDescription, setCasualDescription] = useState('');
+  const [casualDescriptionEn, setCasualDescriptionEn] = useState('');
   const [bestWayToDrink, setBestWayToDrink] = useState('');
-  const [caffeineFeel, setCaffeineFeel] = useState<'Ringan & Santai' | 'Sedang & Pas' | 'Kuat & Nendang'>('Sedang & Pas');
-  const [userRating, setUserRating] = useState<number>(5);
+  const [bestWayToDrinkEn, setBestWayToDrinkEn] = useState('');
+  const [caffeineFeel, setCaffeineFeel] = useState<
+    'Ringan & Santai' | 'Sedang & Pas' | 'Kuat & Nendang'
+  >('Sedang & Pas');
+  const [caffeineFeelEn, setCaffeineFeelEn] = useState('');
+  const [recommendedBrew, setRecommendedBrew] = useState('V60, Tubruk');
+  const [userRating, setUserRating] = useState(5);
 
   const [isLoadingAI, setIsLoadingAI] = useState(false);
   const [aiError, setAiError] = useState<string | null>(null);
@@ -47,7 +74,11 @@ export const AddCoffeeModal: React.FC<AddCoffeeModalProps> = ({
   // Handle Smart AI Auto-Complete
   const handleSmartAutoComplete = async () => {
     if (!inputName.trim() && !inputOrigin.trim()) {
-      setAiError('Masukkan setidaknya Nama Kopi atau Asal Daerah terlebih dahulu.');
+      setAiError(
+        lang === 'en'
+          ? 'Please enter at least the Coffee Name or Origin Region first.'
+          : 'Masukkan setidaknya Nama Kopi atau Asal Daerah terlebih dahulu.'
+      );
       return;
     }
 
@@ -64,29 +95,42 @@ export const AddCoffeeModal: React.FC<AddCoffeeModalProps> = ({
           process: inputProcess,
           roastLevel: inputRoastLevel,
           origin: inputOrigin,
+          lang,
         }),
       });
 
       const result = await response.json();
       if (!response.ok || !result.success) {
-        throw new Error(result.error || 'Gagal melengkapi data secara otomatis.');
+        throw new Error(
+          result.error ||
+            (lang === 'en'
+              ? 'Failed to auto-complete coffee specifications.'
+              : 'Gagal melengkapi data secara otomatis.')
+        );
       }
 
       const data = result.data;
 
-      // Auto-populate all fields
+      // Auto-populate fields
       if (data.name) setInputName(data.name);
       if (data.originCountry) setInputOrigin(data.originCountry);
       if (data.region) setRegion(data.region);
+      if (data.regionEn) setRegionEn(data.regionEn);
       if (data.altitudeRange) setAltitudeRange(data.altitudeRange);
+      if (data.altitudeRangeEn) setAltitudeRangeEn(data.altitudeRangeEn);
       if (data.type) setCoffeeType(data.type);
       if (data.process) setInputProcess(data.process);
+      if (data.processEn) setProcessEn(data.processEn);
       if (data.roastLevel) setInputRoastLevel(data.roastLevel);
       if (data.varietal) setVarietal(data.varietal);
       if (data.producer) setProducer(data.producer);
       if (data.generalCharacter) setGeneralCharacter(data.generalCharacter);
+      if (data.generalCharacterEn) setGeneralCharacterEn(data.generalCharacterEn);
       if (data.flavourNotes && Array.isArray(data.flavourNotes)) {
         setFlavourNotesText(data.flavourNotes.join(', '));
+      }
+      if (data.flavourNotesEn && Array.isArray(data.flavourNotesEn)) {
+        setFlavourNotesTextEn(data.flavourNotesEn.join(', '));
       }
       if (data.scaScore) setScaScore(String(data.scaScore));
       if (data.acidity) setAcidity(Number(data.acidity));
@@ -96,12 +140,18 @@ export const AddCoffeeModal: React.FC<AddCoffeeModalProps> = ({
         setRecommendedBrew(data.recommendedBrew.join(', '));
       }
       if (data.casualDescription) setCasualDescription(data.casualDescription);
+      if (data.casualDescriptionEn) setCasualDescriptionEn(data.casualDescriptionEn);
       if (data.bestWayToDrink) setBestWayToDrink(data.bestWayToDrink);
+      if (data.bestWayToDrinkEn) setBestWayToDrinkEn(data.bestWayToDrinkEn);
       if (data.caffeineFeel) setCaffeineFeel(data.caffeineFeel);
+      if (data.caffeineFeelEn) setCaffeineFeelEn(data.caffeineFeelEn);
 
-      setAiSuccessMessage('Identitas kopi berhasil dilengkapi otomatis oleh AI! Silakan tinjau data di bawah.');
+      setAiSuccessMessage(
+        lang === 'en'
+          ? 'Coffee identity successfully enriched with bilingual specialty specs! Review the details below.'
+          : 'Identitas kopi berhasil dilengkapi otomatis oleh AI! Silakan tinjau data di bawah.'
+      );
 
-      // Celebrate
       confetti({
         particleCount: 50,
         spread: 60,
@@ -109,7 +159,12 @@ export const AddCoffeeModal: React.FC<AddCoffeeModalProps> = ({
       });
     } catch (err: any) {
       console.error('AI Autocomplete error:', err);
-      setAiError(err.message || 'Gagal menghubungi asisten AI.');
+      setAiError(
+        err.message ||
+          (lang === 'en'
+            ? 'Failed to connect to AI assistant.'
+            : 'Gagal menghubungi asisten AI.')
+      );
     } finally {
       setIsLoadingAI(false);
     }
@@ -119,7 +174,7 @@ export const AddCoffeeModal: React.FC<AddCoffeeModalProps> = ({
     e.preventDefault();
 
     if (!inputName.trim()) {
-      setAiError('Nama kopi wajib diisi.');
+      setAiError(lang === 'en' ? 'Coffee name is required.' : 'Nama kopi wajib diisi.');
       return;
     }
 
@@ -135,6 +190,13 @@ export const AddCoffeeModal: React.FC<AddCoffeeModalProps> = ({
           .filter(Boolean)
       : ['Cokelat', 'Karamel', 'Fruity'];
 
+    const notesEnArray = flavourNotesTextEn
+      ? flavourNotesTextEn
+          .split(',')
+          .map((n) => n.trim())
+          .filter(Boolean)
+      : undefined;
+
     const brewsArray = recommendedBrew
       ? recommendedBrew
           .split(',')
@@ -148,12 +210,18 @@ export const AddCoffeeModal: React.FC<AddCoffeeModalProps> = ({
       name: inputName.trim(),
       originCountry: inputOrigin.trim() || 'Indonesia',
       region: region.trim() || 'Origin Spesifik',
+      regionEn: regionEn.trim() || undefined,
       altitudeRange: altitudeRange.trim() || '1.200 - 1.600 mdpl',
+      altitudeRangeEn: altitudeRangeEn.trim() || undefined,
       type: coffeeType,
       process: inputProcess.trim() || 'Natural Process',
+      processEn: processEn.trim() || undefined,
       roastLevel: inputRoastLevel,
-      generalCharacter: generalCharacter.trim() || 'Aromatik dengan profil rasa seimbang',
+      generalCharacter:
+        generalCharacter.trim() || 'Aromatik dengan profil rasa seimbang',
+      generalCharacterEn: generalCharacterEn.trim() || undefined,
       flavourNotes: notesArray,
+      flavourNotesEn: notesEnArray,
       varietal: varietal.trim() || 'Typica / Arabika Lokal',
       producer: producer.trim() || 'Petani Kopi Nusantara',
       scaScore: scaScore ? parseFloat(scaScore) : undefined,
@@ -162,17 +230,27 @@ export const AddCoffeeModal: React.FC<AddCoffeeModalProps> = ({
       sweetness,
       recommendedBrew: brewsArray,
       brewRecipe: {
-        ratio: '1:15 (15g kopi / 225ml air)',
+        ratio: '1:15 (15g kopi / 225ml water)',
         temperature: '92°C',
         grindSize: 'Medium-Fine',
         time: '2m 25s',
-        note: 'Gunakan air mineral bersuhu 92°C untuk rasa optimal',
+        note:
+          lang === 'en'
+            ? 'Gentle spiral pour maintaining slurry temperature at 92°C'
+            : 'Gunakan air bersuhu 92°C dan tuang perlahan untuk rasa optimal',
       },
       casualDescription:
         casualDescription.trim() ||
         'Kopi nikmat dengan rasa manis alami seimbang dan aroma menggugah selera.',
-      bestWayToDrink: bestWayToDrink.trim() || 'Nikmat diseduh hitam segar atau dingin pakai es',
+      casualDescriptionEn:
+        casualDescriptionEn.trim() ||
+        'A pleasant, naturally balanced cup with gentle sweetness and a welcoming aroma.',
+      bestWayToDrink:
+        bestWayToDrink.trim() || 'Nikmat diseduh hitam segar atau dingin pakai es',
+      bestWayToDrinkEn:
+        bestWayToDrinkEn.trim() || 'Delicious served fresh black or over ice',
       caffeineFeel,
+      caffeineFeelEn: caffeineFeelEn.trim() || undefined,
       rating: userRating,
       createdAt: new Date().toISOString().split('T')[0],
     };
@@ -188,15 +266,16 @@ export const AddCoffeeModal: React.FC<AddCoffeeModalProps> = ({
         <div className="flex items-center justify-between pb-3 border-b border-[#332B1C]">
           <div>
             <h2 className="text-2xl font-medium font-display tracking-tight text-[#332B1C] flex items-center gap-2">
-              <span>☕ Buat KTP Kopi Baru</span>
+              <span>☕ {t.addModalTitle}</span>
             </h2>
             <p className="text-[11px] text-[#332B1C]/75 mt-0.5">
-              Masukkan sedikit informasi, AI akan melengkapi identitas lengkapnya!
+              {t.addModalSubtitle}
             </p>
           </div>
           <button
             onClick={onClose}
             className="p-1.5 text-[#332B1C] hover:bg-[#332B1C] hover:text-[#F0E5C5] rounded-full border border-[#332B1C] transition"
+            title={t.detailCloseBtn}
           >
             <X className="w-4 h-4" />
           </button>
@@ -207,14 +286,14 @@ export const AddCoffeeModal: React.FC<AddCoffeeModalProps> = ({
           <div className="flex items-start justify-between gap-2">
             <div className="flex items-center gap-2 text-[#332B1C] font-bold text-xs uppercase tracking-wide">
               <Sparkles className="w-3.5 h-3.5 text-[#332B1C]" />
-              <span>Smart AI Auto-Complete</span>
+              <span>{t.addAiCardTitle}</span>
             </div>
-            <span className="text-[9px] font-mono-code bg-[#F0E5C5] text-[#332B1C] border border-[#332B1C] font-bold px-1.5 py-0.5 rounded-full">
-              GEMINI 3.8 FLASH
+            <span className="text-[9px] bg-[#F0E5C5] text-[#332B1C] border border-[#332B1C] font-bold px-1.5 py-0.5 rounded-full">
+              GEMINI 2.5 FLASH
             </span>
           </div>
           <p className="text-[11px] text-[#332B1C] leading-relaxed">
-            Hanya tahu nama kopi dan prosesnya? Cukup ketik misalnya <strong>"Gayo"</strong>, proses <strong>"Natural"</strong>, lalu tekan tombol di bawah. AI akan otomatis melengkapi ketinggian tanam, varietal, rasa untuk orang biasa, hingga cupping score!
+            {t.addAiCardDesc}
           </p>
 
           <button
@@ -227,12 +306,12 @@ export const AddCoffeeModal: React.FC<AddCoffeeModalProps> = ({
             {isLoadingAI ? (
               <>
                 <Loader2 className="w-3.5 h-3.5 animate-spin text-[#E2F4CB]" />
-                <span>Sedang Menganalisis & Melengkapi Identitas Kopi...</span>
+                <span>{t.addAiLoadingBtn}</span>
               </>
             ) : (
               <>
                 <Wand2 className="w-3.5 h-3.5 text-[#E2F4CB]" />
-                <span>Lengkapi Identitas Otomatis dengan AI</span>
+                <span>{t.addAiButton}</span>
               </>
             )}
           </button>
@@ -258,14 +337,14 @@ export const AddCoffeeModal: React.FC<AddCoffeeModalProps> = ({
             {/* Name */}
             <div>
               <label className="block text-[11px] font-medium uppercase tracking-wider text-[#332B1C] mb-1">
-                Nama Kopi / Label Biji *
+                {t.addFieldName}
               </label>
               <input
                 type="text"
                 required
                 value={inputName}
                 onChange={(e) => setInputName(e.target.value)}
-                placeholder="Contoh: Gayo Avatara Natural"
+                placeholder={t.addPlaceholderName}
                 className="w-full rounded-none border border-[#332B1C] bg-[#F0E5C5] text-[#332B1C] placeholder:text-[#332B1C]/50 px-2.5 py-1.5 text-xs focus:outline-none focus:ring-1 focus:ring-[#332B1C]"
               />
             </div>
@@ -273,27 +352,27 @@ export const AddCoffeeModal: React.FC<AddCoffeeModalProps> = ({
             {/* Origin Country */}
             <div>
               <label className="block text-[11px] font-medium uppercase tracking-wider text-[#332B1C] mb-1">
-                Negara Asal (Country)
+                {t.addFieldCountry}
               </label>
               <input
                 type="text"
                 value={inputOrigin}
                 onChange={(e) => setInputOrigin(e.target.value)}
-                placeholder="Contoh: Indonesia / Ethiopia"
+                placeholder={t.addPlaceholderCountry}
                 className="w-full rounded-none border border-[#332B1C] bg-[#F0E5C5] text-[#332B1C] placeholder:text-[#332B1C]/50 px-2.5 py-1.5 text-xs focus:outline-none focus:ring-1 focus:ring-[#332B1C]"
               />
             </div>
 
-            {/* Region */}
+            {/* Region (ID & EN) */}
             <div>
               <label className="block text-[11px] font-medium uppercase tracking-wider text-[#332B1C] mb-1">
-                Wilayah / Region
+                {t.addFieldRegion}
               </label>
               <input
                 type="text"
                 value={region}
                 onChange={(e) => setRegion(e.target.value)}
-                placeholder="Contoh: Aceh Tengah, Pegunungan Gayo"
+                placeholder={t.addPlaceholderRegion}
                 className="w-full rounded-none border border-[#332B1C] bg-[#F0E5C5] text-[#332B1C] placeholder:text-[#332B1C]/50 px-2.5 py-1.5 text-xs focus:outline-none focus:ring-1 focus:ring-[#332B1C]"
               />
             </div>
@@ -301,13 +380,13 @@ export const AddCoffeeModal: React.FC<AddCoffeeModalProps> = ({
             {/* Altitude */}
             <div>
               <label className="block text-[11px] font-medium uppercase tracking-wider text-[#332B1C] mb-1">
-                Ketinggian (Altitude Range)
+                {t.addFieldAltitude}
               </label>
               <input
                 type="text"
                 value={altitudeRange}
                 onChange={(e) => setAltitudeRange(e.target.value)}
-                placeholder="Contoh: 1.400 - 1.650 mdpl"
+                placeholder={t.addPlaceholderAltitude}
                 className="w-full rounded-none border border-[#332B1C] bg-[#F0E5C5] text-[#332B1C] placeholder:text-[#332B1C]/50 px-2.5 py-1.5 text-xs focus:outline-none focus:ring-1 focus:ring-[#332B1C]"
               />
             </div>
@@ -315,31 +394,31 @@ export const AddCoffeeModal: React.FC<AddCoffeeModalProps> = ({
             {/* Species Type */}
             <div>
               <label className="block text-[11px] font-medium uppercase tracking-wider text-[#332B1C] mb-1">
-                Spesies / Tipe Kopi
+                {t.addFieldSpecies}
               </label>
               <select
                 value={coffeeType}
                 onChange={(e) => setCoffeeType(e.target.value as CoffeeType)}
                 className="w-full rounded-none border border-[#332B1C] bg-[#F0E5C5] text-[#332B1C] px-2.5 py-1.5 text-xs focus:outline-none focus:ring-1 focus:ring-[#332B1C]"
               >
-                <option value="Arabika">Arabika</option>
-                <option value="Robusta">Robusta</option>
-                <option value="Liberika">Liberika</option>
+                <option value="Arabika">Arabika (Arabica)</option>
+                <option value="Robusta">Robusta (Fine Canephora)</option>
+                <option value="Liberika">Liberika (Liberica)</option>
                 <option value="Excelsa">Excelsa</option>
-                <option value="Blend">Blend (Campuran)</option>
+                <option value="Blend">Blend / House Blend</option>
               </select>
             </div>
 
             {/* Process */}
             <div>
               <label className="block text-[11px] font-medium uppercase tracking-wider text-[#332B1C] mb-1">
-                Metode Proses Pasca Panen
+                {t.addFieldProcess}
               </label>
               <input
                 type="text"
                 value={inputProcess}
                 onChange={(e) => setInputProcess(e.target.value)}
-                placeholder="Natural / Full Wash / Honey / Anaerobic"
+                placeholder="Natural / Washed / Honey / Anaerobic"
                 className="w-full rounded-none border border-[#332B1C] bg-[#F0E5C5] text-[#332B1C] placeholder:text-[#332B1C]/50 px-2.5 py-1.5 text-xs focus:outline-none focus:ring-1 focus:ring-[#332B1C]"
               />
             </div>
@@ -347,7 +426,7 @@ export const AddCoffeeModal: React.FC<AddCoffeeModalProps> = ({
             {/* Roast Level */}
             <div>
               <label className="block text-[11px] font-medium uppercase tracking-wider text-[#332B1C] mb-1">
-                Tingkat Sangrai (Roasting)
+                {t.addFieldRoast}
               </label>
               <select
                 value={inputRoastLevel}
@@ -365,13 +444,13 @@ export const AddCoffeeModal: React.FC<AddCoffeeModalProps> = ({
             {/* Varietal */}
             <div>
               <label className="block text-[11px] font-medium uppercase tracking-wider text-[#332B1C] mb-1">
-                Kultivar / Varietal
+                {t.addFieldVarietal}
               </label>
               <input
                 type="text"
                 value={varietal}
                 onChange={(e) => setVarietal(e.target.value)}
-                placeholder="Contoh: Typica, Ateng Super, Bourbon"
+                placeholder="Typica, Bourbon, Ateng Super, Heirloom"
                 className="w-full rounded-none border border-[#332B1C] bg-[#F0E5C5] text-[#332B1C] placeholder:text-[#332B1C]/50 px-2.5 py-1.5 text-xs focus:outline-none focus:ring-1 focus:ring-[#332B1C]"
               />
             </div>
@@ -380,13 +459,13 @@ export const AddCoffeeModal: React.FC<AddCoffeeModalProps> = ({
           {/* Flavour Notes */}
           <div>
             <label className="block text-[11px] font-medium uppercase tracking-wider text-[#332B1C] mb-1">
-              Flavour Notes (Pisahkan dengan koma)
+              {t.addFieldFlavours}
             </label>
             <input
               type="text"
               value={flavourNotesText}
               onChange={(e) => setFlavourNotesText(e.target.value)}
-              placeholder="Contoh: Nangka Matang, Gula Palem, Cokelat Hitam"
+              placeholder="Contoh: Nangka Matang, Gula Aren, Dark Chocolate"
               className="w-full rounded-none border border-[#332B1C] bg-[#F0E5C5] text-[#332B1C] placeholder:text-[#332B1C]/50 px-2.5 py-1.5 text-xs focus:outline-none focus:ring-1 focus:ring-[#332B1C]"
             />
           </div>
@@ -394,13 +473,17 @@ export const AddCoffeeModal: React.FC<AddCoffeeModalProps> = ({
           {/* Casual Description */}
           <div>
             <label className="block text-[11px] font-medium uppercase tracking-wider text-[#332B1C] mb-1">
-              Deskripsi Bahasa Sehari-hari (Untuk Orang Biasa)
+              {t.addFieldCasualDesc}
             </label>
             <textarea
               rows={2}
               value={casualDescription}
               onChange={(e) => setCasualDescription(e.target.value)}
-              placeholder="Jelaskan rasanya dalam bahasa santai tanpa istilah teknis..."
+              placeholder={
+                lang === 'en'
+                  ? 'Describe in friendly, easy-to-understand words for casual drinkers...'
+                  : 'Jelaskan rasanya dalam bahasa santai tanpa istilah teknis...'
+              }
               className="w-full rounded-none border border-[#332B1C] bg-[#F0E5C5] text-[#332B1C] placeholder:text-[#332B1C]/50 px-2.5 py-1.5 text-xs focus:outline-none focus:ring-1 focus:ring-[#332B1C]"
             />
           </div>
@@ -409,7 +492,7 @@ export const AddCoffeeModal: React.FC<AddCoffeeModalProps> = ({
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 p-2.5 bg-[#F0E5C5] rounded-none border border-[#332B1C]">
             <div>
               <label className="block text-[10px] font-bold text-[#332B1C] mb-1 uppercase tracking-wider">
-                Keasaman (1-5)
+                {t.scaleAcidity} (1-5)
               </label>
               <input
                 type="number"
@@ -422,7 +505,7 @@ export const AddCoffeeModal: React.FC<AddCoffeeModalProps> = ({
             </div>
             <div>
               <label className="block text-[10px] font-bold text-[#332B1C] mb-1 uppercase tracking-wider">
-                Body/Pekat (1-5)
+                {t.scaleBody} (1-5)
               </label>
               <input
                 type="number"
@@ -435,7 +518,7 @@ export const AddCoffeeModal: React.FC<AddCoffeeModalProps> = ({
             </div>
             <div>
               <label className="block text-[10px] font-bold text-[#332B1C] mb-1 uppercase tracking-wider">
-                Manis (1-5)
+                {t.scaleSweetness} (1-5)
               </label>
               <input
                 type="number"
@@ -458,7 +541,7 @@ export const AddCoffeeModal: React.FC<AddCoffeeModalProps> = ({
                 value={scaScore}
                 onChange={(e) => setScaScore(e.target.value)}
                 placeholder="86.5"
-                className="w-full rounded-none border border-[#332B1C] bg-[#F0E5C5] px-2 py-1 text-xs text-center font-mono-code font-bold text-[#332B1C]"
+                className="w-full rounded-none border border-[#332B1C] bg-[#F0E5C5] px-2 py-1 text-xs text-center font-bold text-[#332B1C]"
               />
             </div>
           </div>
@@ -470,13 +553,13 @@ export const AddCoffeeModal: React.FC<AddCoffeeModalProps> = ({
               onClick={onClose}
               className="px-3.5 py-1.5 text-xs font-medium text-[#332B1C] hover:bg-[#332B1C]/10 border border-[#332B1C] rounded-full transition"
             >
-              Batal
+              {t.addCancelBtn}
             </button>
             <button
               type="submit"
               className="px-4 py-1.5 text-xs font-medium text-[#F0E5C5] bg-[#332B1C] border border-[#332B1C] rounded-full hover:opacity-90 transition active:scale-95"
             >
-              Simpan KTP Kopi
+              {t.addSubmitBtn}
             </button>
           </div>
         </form>

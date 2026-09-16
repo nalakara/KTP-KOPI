@@ -1,6 +1,7 @@
 import { toPng, toJpeg } from 'html-to-image';
 import jsPDF from 'jspdf';
-import { CoffeeCardItem, ViewMode } from '../types';
+import { CoffeeCardItem, ViewMode, Language } from '../types';
+import { getLocalizedCoffee } from './cardLocalization';
 
 const commonExportOptions = {
   quality: 0.95,
@@ -52,11 +53,14 @@ export async function exportCardAsPDF(
   elementId: string,
   fileName: string,
   coffee?: CoffeeCardItem,
-  mode: ViewMode = 'enthusiast'
+  mode: ViewMode = 'enthusiast',
+  lang: Language = 'id'
 ): Promise<boolean> {
   // If we have the structured coffee data, generate a true native vector PDF!
   if (coffee) {
     try {
+      const item = getLocalizedCoffee(coffee, lang);
+
       const pdf = new jsPDF({
         orientation: 'portrait',
         unit: 'mm',
@@ -80,7 +84,7 @@ export async function exportCardAsPDF(
       const cWhite = [255, 255, 255];
       const cGreen = [22, 101, 52];
 
-      // Draw Main Card Container (Vector with subtle drop-shadow effect & border)
+      // Draw Main Card Container
       const cardY = 16;
       const cardHeight = 262;
 
@@ -90,11 +94,10 @@ export async function exportCardAsPDF(
       pdf.setLineWidth(0.6);
       pdf.roundedRect(margin, cardY, contentWidth, cardHeight, 6, 6, 'FD');
 
-      // Top Official Header Banner (KTP Kopi Republic Banner)
+      // Top Official Header Banner
       const headerHeight = 24;
       pdf.setFillColor(cDarkEspresso[0], cDarkEspresso[1], cDarkEspresso[2]);
       pdf.roundedRect(margin, cardY, contentWidth, headerHeight, 6, 6, 'F');
-      // Fill bottom corners of header so it seamlessly attaches to the card body
       pdf.rect(margin, cardY + headerHeight - 4, contentWidth, 4, 'F');
 
       // Header Golden Line Accent
@@ -102,45 +105,65 @@ export async function exportCardAsPDF(
       pdf.setLineWidth(0.8);
       pdf.line(margin, cardY + headerHeight, margin + contentWidth, cardY + headerHeight);
 
-      // Header Text: "REPUBLIK KOPI INDONESIA" & "KARTU TANDA PENGENAL KOPI (COFFEE ID)"
+      // Header Text
       pdf.setFont('helvetica', 'bold');
       pdf.setFontSize(10.5);
-      pdf.setTextColor(245, 158, 11); // Amber Gold
-      pdf.text('REPUBLIK KOPI INDONESIA', margin + 18, cardY + 9);
+      pdf.setTextColor(245, 158, 11);
+      pdf.text(
+        lang === 'en'
+          ? 'GLOBAL SPECIALTY COFFEE REGISTRY'
+          : 'REPUBLIK KOPI INDONESIA',
+        margin + 18,
+        cardY + 9
+      );
 
       pdf.setFont('helvetica', 'normal');
       pdf.setFontSize(7.5);
-      pdf.setTextColor(253, 230, 138); // Pale Gold
-      pdf.text('KARTU TANDA PENGENAL KOPI (COFFEE ID CARD)', margin + 18, cardY + 14.5);
+      pdf.setTextColor(253, 230, 138);
+      pdf.text(
+        lang === 'en'
+          ? 'OFFICIAL COFFEE PROVENANCE PASSPORT (COFFEE ID)'
+          : 'KARTU TANDA PENGENAL KOPI (COFFEE ID CARD)',
+        margin + 18,
+        cardY + 14.5
+      );
 
-      // Emblem Cup Icon (Vector)
+      // Emblem Icon
       pdf.setFillColor(cWarmGold[0], cWarmGold[1], cWarmGold[2]);
       pdf.circle(margin + 9, cardY + 11.5, 4.5, 'F');
       pdf.setFont('helvetica', 'bold');
-      pdf.setFontSize(8.5);
+      pdf.setFontSize(lang === 'en' ? 7 : 8.5);
       pdf.setTextColor(cDarkEspresso[0], cDarkEspresso[1], cDarkEspresso[2]);
-      pdf.text('KTP', margin + 6.3, cardY + 12.8);
+      pdf.text(lang === 'en' ? 'CID' : 'KTP', margin + (lang === 'en' ? 6.2 : 6.3), cardY + 12.8);
 
-      // KTP Number (Top Right)
+      // Passport Number (Top Right)
       pdf.setFont('courier', 'bold');
       pdf.setFontSize(8.5);
       pdf.setTextColor(cWhite[0], cWhite[1], cWhite[2]);
-      pdf.text(`NO. ${coffee.ktpNumber || 'ID-KOPI-001'}`, margin + contentWidth - 6, cardY + 11, {
-        align: 'right',
-      });
+      pdf.text(
+        `${lang === 'en' ? 'PASSPORT NO. ' : 'NO. '}${coffee.ktpNumber || 'ID-KOPI-001'}`,
+        margin + contentWidth - 6,
+        cardY + 11,
+        { align: 'right' }
+      );
       pdf.setFont('helvetica', 'normal');
       pdf.setFontSize(6.5);
       pdf.setTextColor(253, 230, 138);
-      pdf.text(
-        mode === 'casual'
+
+      const modeLabel =
+        lang === 'en'
+          ? mode === 'casual'
+            ? 'EDITION: CASUAL (EVERYDAY SIPPER)'
+            : mode === 'beginner'
+            ? 'EDITION: BEGINNER (COFFEE EXPLORER)'
+            : 'EDITION: SPECIALTY ENTHUSIAST'
+          : mode === 'casual'
           ? 'EDISI: CASUAL (ORANG BIASA)'
           : mode === 'beginner'
           ? 'EDISI: BEGINNER (PENIKMAT PEMULA)'
-          : 'EDISI: SPECIALTY ENTHUSIAST',
-        margin + contentWidth - 6,
-        cardY + 16,
-        { align: 'right' }
-      );
+          : 'EDISI: SPECIALTY ENTHUSIAST';
+
+      pdf.text(modeLabel, margin + contentWidth - 6, cardY + 16, { align: 'right' });
 
       // Current Y pointer inside card
       let y = cardY + headerHeight + 8;
@@ -149,7 +172,7 @@ export async function exportCardAsPDF(
       pdf.setFillColor(cLightAmberBg[0], cLightAmberBg[1], cLightAmberBg[2]);
       pdf.setDrawColor(cWarmGold[0], cWarmGold[1], cWarmGold[2]);
       pdf.setLineWidth(0.3);
-      const tagText = `${coffee.type.toUpperCase()} • ${coffee.originCountry.toUpperCase()}`;
+      const tagText = `${item.typeFormatted.toUpperCase()} • ${item.originCountry.toUpperCase()}`;
       const tagWidth = pdf.getTextWidth(tagText) + 8;
       pdf.roundedRect(margin + 8, y - 4, tagWidth, 6, 1.5, 1.5, 'FD');
 
@@ -171,13 +194,13 @@ export async function exportCardAsPDF(
       pdf.setFont('times', 'bold');
       pdf.setFontSize(19);
       pdf.setTextColor(cStoneDark[0], cStoneDark[1], cStoneDark[2]);
-      pdf.text(coffee.name, margin + 8, y);
+      pdf.text(item.name, margin + 8, y);
 
-      // SCA Score Badge (Vector Seal at Top Right if available)
+      // SCA Score Badge
       if (coffee.scaScore && mode !== 'casual') {
         const badgeX = margin + contentWidth - 28;
         const badgeY = y - 6;
-        pdf.setFillColor(255, 251, 235); // Light Gold Fill
+        pdf.setFillColor(255, 251, 235);
         pdf.setDrawColor(cWarmGold[0], cWarmGold[1], cWarmGold[2]);
         pdf.setLineWidth(0.5);
         pdf.roundedRect(badgeX, badgeY, 20, 16, 2, 2, 'FD');
@@ -200,7 +223,13 @@ export async function exportCardAsPDF(
       pdf.setFont('helvetica', 'normal');
       pdf.setFontSize(9);
       pdf.setTextColor(cStoneMuted[0], cStoneMuted[1], cStoneMuted[2]);
-      pdf.text(`Wilayah: ${coffee.region}, ${coffee.originCountry}`, margin + 8, y);
+      pdf.text(
+        lang === 'en'
+          ? `Terroir: ${item.region}, ${item.originCountry}`
+          : `Wilayah: ${item.region}, ${item.originCountry}`,
+        margin + 8,
+        y
+      );
 
       y += 8;
 
@@ -214,29 +243,41 @@ export async function exportCardAsPDF(
       // SECTION 1: CASUAL / TASTING SUMMARY QUOTE BOX
       const summaryBoxY = y;
       const summaryBoxHeight = 18;
-      pdf.setFillColor(254, 248, 240); // Soft Cream
+      pdf.setFillColor(254, 248, 240);
       pdf.setDrawColor(246, 224, 194);
       pdf.roundedRect(margin + 8, summaryBoxY, contentWidth - 16, summaryBoxHeight, 3, 3, 'FD');
 
       pdf.setFont('helvetica', 'bold');
       pdf.setFontSize(7.5);
       pdf.setTextColor(cDeepAmber[0], cDeepAmber[1], cDeepAmber[2]);
-      pdf.text('KESAN RASA UTAMA (FLAVOUR SUMMARY):', margin + 12, summaryBoxY + 5.5);
+      pdf.text(
+        lang === 'en'
+          ? 'PRIMARY FLAVOUR IMPRESSION:'
+          : 'KESAN RASA UTAMA (FLAVOUR SUMMARY):',
+        margin + 12,
+        summaryBoxY + 5.5
+      );
 
       pdf.setFont('helvetica', 'normal');
       pdf.setFontSize(8.5);
       pdf.setTextColor(cStoneDark[0], cStoneDark[1], cStoneDark[2]);
-      const summaryText = `"${coffee.casualDescription || coffee.generalCharacter}"`;
+      const summaryText = `"${item.casualDescription || item.generalCharacter}"`;
       const splitSummary = pdf.splitTextToSize(summaryText, contentWidth - 24);
       pdf.text(splitSummary, margin + 12, summaryBoxY + 11);
 
       y = summaryBoxY + summaryBoxHeight + 6;
 
-      // SECTION 2: SPECIFICATION TABLE (Vector Table)
+      // SECTION 2: SPECIFICATION TABLE
       pdf.setFont('helvetica', 'bold');
       pdf.setFontSize(8);
       pdf.setTextColor(cStoneMuted[0], cStoneMuted[1], cStoneMuted[2]);
-      pdf.text('IDENTITAS LENGKAP BIJI KOPI (COFFEE SPECIFICATIONS)', margin + 8, y);
+      pdf.text(
+        lang === 'en'
+          ? 'SPECIALTY SPECIFICATIONS & PROVENANCE'
+          : 'IDENTITAS LENGKAP BIJI KOPI (COFFEE SPECIFICATIONS)',
+        margin + 8,
+        y
+      );
 
       y += 3;
 
@@ -245,24 +286,50 @@ export async function exportCardAsPDF(
       const rowHeight = 7.5;
       const col1Width = tableWidth * 0.5;
 
-      const specs = [
-        [
-          { label: 'Spesies / Jenis', val: coffee.type },
-          { label: 'Metode Proses', val: coffee.process },
-        ],
-        [
-          { label: 'Ketinggian (Altitude)', val: coffee.altitudeRange },
-          { label: 'Tingkat Sangrai', val: `${coffee.roastLevel} Roast` },
-        ],
-        [
-          { label: 'Kultivar / Varietal', val: coffee.varietal || 'Typica / Heirloom' },
-          { label: 'Petani / Produser', val: coffee.producer || 'Petani Lokal' },
-        ],
-        [
-          { label: 'Roaster / Crop', val: `${coffee.roaster || 'Specialty Roastery'} ${coffee.harvestYear ? `(${coffee.harvestYear})` : ''}` },
-          { label: 'Saran Minum Terbaik', val: coffee.bestWayToDrink || 'Seduh Segar Panas / Es' },
-        ],
-      ];
+      const specs =
+        lang === 'en'
+          ? [
+              [
+                { label: 'Botanical Species', val: item.typeFormatted },
+                { label: 'Processing Craft', val: item.process },
+              ],
+              [
+                { label: 'Elevation (MASL)', val: item.altitudeRange },
+                { label: 'Roast Profile', val: item.roastLevelFormatted },
+              ],
+              [
+                { label: 'Cultivar / Variety', val: coffee.varietal || 'Typica / Heirloom' },
+                { label: 'Producer / Station', val: coffee.producer || 'Local Heritage Farmers' },
+              ],
+              [
+                {
+                  label: 'Roaster / Crop',
+                  val: `${coffee.roaster || 'Specialty Roastery'} ${coffee.harvestYear ? `(${coffee.harvestYear})` : ''}`,
+                },
+                { label: 'Optimal Serving', val: item.bestWayToDrink || 'Fresh Pour-Over / Iced' },
+              ],
+            ]
+          : [
+              [
+                { label: 'Spesies / Jenis', val: coffee.type },
+                { label: 'Metode Proses', val: coffee.process },
+              ],
+              [
+                { label: 'Ketinggian (Altitude)', val: coffee.altitudeRange },
+                { label: 'Tingkat Sangrai', val: `${coffee.roastLevel} Roast` },
+              ],
+              [
+                { label: 'Kultivar / Varietal', val: coffee.varietal || 'Typica / Heirloom' },
+                { label: 'Petani / Produser', val: coffee.producer || 'Petani Lokal' },
+              ],
+              [
+                {
+                  label: 'Roaster / Crop',
+                  val: `${coffee.roaster || 'Specialty Roastery'} ${coffee.harvestYear ? `(${coffee.harvestYear})` : ''}`,
+                },
+                { label: 'Saran Minum Terbaik', val: coffee.bestWayToDrink || 'Seduh Segar Panas / Es' },
+              ],
+            ];
 
       const tableHeight = specs.length * rowHeight;
       pdf.setFillColor(250, 250, 249);
@@ -270,7 +337,7 @@ export async function exportCardAsPDF(
       pdf.setLineWidth(0.3);
       pdf.roundedRect(tableX, y, tableWidth, tableHeight, 2, 2, 'FD');
 
-      // Draw horizontal & vertical dividers
+      // Dividers
       pdf.line(tableX + col1Width, y, tableX + col1Width, y + tableHeight);
       for (let i = 1; i < specs.length; i++) {
         pdf.line(tableX, y + i * rowHeight, tableX + tableWidth, y + i * rowHeight);
@@ -305,18 +372,24 @@ export async function exportCardAsPDF(
 
       y += tableHeight + 6;
 
-      // SECTION 3: FLAVOUR NOTES (Vector Pills)
+      // SECTION 3: FLAVOUR NOTES
       pdf.setFont('helvetica', 'bold');
       pdf.setFontSize(8);
       pdf.setTextColor(cStoneMuted[0], cStoneMuted[1], cStoneMuted[2]);
-      pdf.text('PROFIL RASA & AROMA (FLAVOUR WHEEL NOTES):', margin + 8, y);
+      pdf.text(
+        lang === 'en'
+          ? 'CUPPING FLAVOUR NOTES (WHEEL):'
+          : 'PROFIL RASA & AROMA (FLAVOUR WHEEL NOTES):',
+        margin + 8,
+        y
+      );
 
       y += 3.5;
 
       let pillX = margin + 8;
       const pillHeight = 6.5;
 
-      coffee.flavourNotes.forEach((note) => {
+      item.flavourNotes.forEach((note) => {
         pdf.setFont('helvetica', 'bold');
         pdf.setFontSize(7.5);
         const textWidth = pdf.getTextWidth(note);
@@ -340,46 +413,58 @@ export async function exportCardAsPDF(
 
       y += pillHeight + 7;
 
-      // SECTION 4: SENSORY BALANCE BARS (Acidity, Body, Sweetness)
+      // SECTION 4: SENSORY BALANCE BARS
       pdf.setFont('helvetica', 'bold');
       pdf.setFontSize(8);
       pdf.setTextColor(cStoneMuted[0], cStoneMuted[1], cStoneMuted[2]);
-      pdf.text('SKALA KESEIMBANGAN SENSORI (SENSORY SPECTRUM):', margin + 8, y);
+      pdf.text(
+        lang === 'en'
+          ? 'SENSORY SPECTRUM (ACIDITY, BODY, SWEETNESS):'
+          : 'SKALA KESEIMBANGAN SENSORI (SENSORY SPECTRUM):',
+        margin + 8,
+        y
+      );
 
       y += 4;
 
-      const sensoryItems = [
-        { label: 'Keasaman (Acidity)', val: coffee.acidity, color: [234, 88, 12] }, // Orange
-        { label: 'Ketebalan (Body)', val: coffee.body, color: [120, 53, 15] }, // Amber
-        { label: 'Rasa Manis (Sweetness)', val: coffee.sweetness, color: [22, 101, 52] }, // Emerald
-      ];
+      const sensoryItems =
+        lang === 'en'
+          ? [
+              { label: 'Acidity', val: coffee.acidity, color: [234, 88, 12] },
+              { label: 'Body Depth', val: coffee.body, color: [120, 53, 15] },
+              { label: 'Natural Sweetness', val: coffee.sweetness, color: [22, 101, 52] },
+            ]
+          : [
+              { label: 'Keasaman (Acidity)', val: coffee.acidity, color: [234, 88, 12] },
+              { label: 'Ketebalan (Body)', val: coffee.body, color: [120, 53, 15] },
+              { label: 'Rasa Manis (Sweetness)', val: coffee.sweetness, color: [22, 101, 52] },
+            ];
 
       const barWidth = (contentWidth - 16 - 8) / 3;
 
-      sensoryItems.forEach((item, idx) => {
+      sensoryItems.forEach((sItem, idx) => {
         const itemX = margin + 8 + idx * (barWidth + 4);
 
         pdf.setFont('helvetica', 'bold');
         pdf.setFontSize(7);
         pdf.setTextColor(cStoneDark[0], cStoneDark[1], cStoneDark[2]);
-        pdf.text(item.label, itemX, y);
+        pdf.text(sItem.label, itemX, y);
 
         pdf.setFont('courier', 'bold');
         pdf.setFontSize(7.5);
         pdf.setTextColor(cStoneMuted[0], cStoneMuted[1], cStoneMuted[2]);
-        pdf.text(`${item.val}/5`, itemX + barWidth, y, { align: 'right' });
+        pdf.text(`${sItem.val}/5`, itemX + barWidth, y, { align: 'right' });
 
-        // 5 blocks for level
         const blockGap = 1.2;
         const blockW = (barWidth - blockGap * 4) / 5;
         const blockY = y + 2;
 
         for (let b = 1; b <= 5; b++) {
           const bx = itemX + (b - 1) * (blockW + blockGap);
-          if (b <= item.val) {
-            pdf.setFillColor(item.color[0], item.color[1], item.color[2]);
+          if (b <= sItem.val) {
+            pdf.setFillColor(sItem.color[0], sItem.color[1], sItem.color[2]);
           } else {
-            pdf.setFillColor(229, 231, 235); // Light Gray
+            pdf.setFillColor(229, 231, 235);
           }
           pdf.roundedRect(bx, blockY, blockW, 3, 0.8, 0.8, 'F');
         }
@@ -400,19 +485,28 @@ export async function exportCardAsPDF(
         pdf.setFontSize(7.5);
         pdf.setTextColor(cDarkEspresso[0], cDarkEspresso[1], cDarkEspresso[2]);
         pdf.text(
-          `PANDUAN SEDUH BARISTA (${coffee.recommendedBrew?.join(', ') || 'V60 / Filter'})`,
+          lang === 'en'
+            ? `BARISTA EXTRACTION FORMULA (${coffee.recommendedBrew?.[0] || 'V60 / Pour Over'})`
+            : `PANDUAN SEDUH BARISTA (${coffee.recommendedBrew?.join(', ') || 'V60 / Filter'})`,
           margin + 12,
           recipeBoxY + 5.5
         );
 
-        // Recipe items
         const colW = (contentWidth - 24) / 4;
-        const recipeData = [
-          { l: 'RASIO SEDUH', v: coffee.brewRecipe?.ratio || '1:15' },
-          { l: 'SUHU AIR', v: coffee.brewRecipe?.temperature || '92°C' },
-          { l: 'UKURAN GILING', v: coffee.brewRecipe?.grindSize || 'Medium-Fine' },
-          { l: 'TARGET WAKTU', v: coffee.brewRecipe?.time || '2m 30s' },
-        ];
+        const recipeData =
+          lang === 'en'
+            ? [
+                { l: 'BREW RATIO', v: item.brewRecipe?.ratio || '1:15' },
+                { l: 'WATER TEMP', v: item.brewRecipe?.temperature || '92°C' },
+                { l: 'GRIND SIZE', v: item.brewRecipe?.grindSize || 'Medium-Fine' },
+                { l: 'TOTAL TIME', v: item.brewRecipe?.time || '2m 30s' },
+              ]
+            : [
+                { l: 'RASIO SEDUH', v: coffee.brewRecipe?.ratio || '1:15' },
+                { l: 'SUHU AIR', v: coffee.brewRecipe?.temperature || '92°C' },
+                { l: 'UKURAN GILING', v: coffee.brewRecipe?.grindSize || 'Medium-Fine' },
+                { l: 'TARGET WAKTU', v: coffee.brewRecipe?.time || '2m 30s' },
+              ];
 
         recipeData.forEach((r, idx) => {
           const rx = margin + 12 + idx * colW;
@@ -427,22 +521,31 @@ export async function exportCardAsPDF(
           pdf.text(r.v, rx, recipeBoxY + 16);
         });
 
-        if (coffee.brewRecipe?.note) {
+        const tipText = item.brewRecipe?.note;
+        if (tipText) {
           pdf.setFont('helvetica', 'italic');
           pdf.setFontSize(7);
           pdf.setTextColor(cStoneMuted[0], cStoneMuted[1], cStoneMuted[2]);
-          pdf.text(`Catatan: ${coffee.brewRecipe.note}`, margin + 12, recipeBoxY + 21.5);
+          pdf.text(
+            `${lang === 'en' ? 'Tip: ' : 'Catatan: '}${tipText}`,
+            margin + 12,
+            recipeBoxY + 21.5
+          );
         }
 
         y = recipeBoxY + recipeHeight + 6;
       }
 
-      // SECTION 6: USER PERSONAL TASTING NOTES (If present)
+      // SECTION 6: USER PERSONAL TASTING NOTES
       if (coffee.userNotes) {
         pdf.setFont('helvetica', 'bold');
         pdf.setFontSize(7.5);
         pdf.setTextColor(cDeepAmber[0], cDeepAmber[1], cDeepAmber[2]);
-        pdf.text('CATATAN PRIBADI (USER LOG):', margin + 8, y);
+        pdf.text(
+          lang === 'en' ? "CURATOR'S PERSONAL LOG:" : 'CATATAN PRIBADI (USER LOG):',
+          margin + 8,
+          y
+        );
         y += 4;
 
         pdf.setFont('helvetica', 'normal');
@@ -463,17 +566,29 @@ export async function exportCardAsPDF(
       pdf.setFont('helvetica', 'bold');
       pdf.setFontSize(7);
       pdf.setTextColor(cGreen[0], cGreen[1], cGreen[2]);
-      pdf.text('✓ VERIFIED SPECIALTY IDENTITY • REPUBLIK KOPI INDONESIA', margin + 8, footerY + 6);
+      pdf.text(
+        lang === 'en'
+          ? '✓ CERTIFIED ORIGIN PROVENANCE • GLOBAL SPECIALTY ARCHIVE'
+          : '✓ VERIFIED SPECIALTY IDENTITY • REPUBLIK KOPI INDONESIA',
+        margin + 8,
+        footerY + 6
+      );
 
       pdf.setFont('helvetica', 'normal');
       pdf.setFontSize(6.5);
       pdf.setTextColor(cStoneMuted[0], cStoneMuted[1], cStoneMuted[2]);
-      const dateStr = new Date().toLocaleDateString('id-ID', {
-        day: 'numeric',
-        month: 'long',
-        year: 'numeric',
-      });
-      pdf.text(`Dokumen Asli Coffee ID • Diterbitkan: ${dateStr}`, margin + 8, footerY + 10.5);
+      const dateStr =
+        lang === 'en'
+          ? new Date().toLocaleDateString('en-US', { dateStyle: 'full' })
+          : new Date().toLocaleDateString('id-ID', { dateStyle: 'full' });
+
+      pdf.text(
+        lang === 'en'
+          ? `Authentic Coffee Passport • Registered: ${dateStr}`
+          : `Dokumen Asli Coffee ID • Diterbitkan: ${dateStr}`,
+        margin + 8,
+        footerY + 10.5
+      );
 
       // Vector Security Barcode at Bottom Right
       const barcodeX = margin + contentWidth - 36;
@@ -494,7 +609,9 @@ export async function exportCardAsPDF(
       pdf.text(coffee.ktpNumber, barcodeX + 13, barcodeY + 9.5, { align: 'center' });
 
       // Save the vector PDF file
-      pdf.save(`${fileName.replace(/\s+/g, '_')}_KTP_Kopi.pdf`);
+      pdf.save(
+        `${fileName.replace(/\s+/g, '_')}_${lang === 'en' ? 'Coffee_Passport' : 'KTP_Kopi'}.pdf`
+      );
       return true;
     } catch (vectorError) {
       console.error('Vector PDF generation failed, falling back to html snapshot:', vectorError);
@@ -527,15 +644,29 @@ export async function exportCardAsPDF(
     pdf.setFont('helvetica', 'bold');
     pdf.setFontSize(14);
     pdf.setTextColor(69, 26, 3);
-    pdf.text('COFFEE ID — KARTU IDENTITAS KOPI', margin, 18);
+    pdf.text(
+      lang === 'en'
+        ? 'COFFEE ID — OFFICIAL COFFEE PASSPORT'
+        : 'COFFEE ID — KARTU IDENTITAS KOPI',
+      margin,
+      18
+    );
     pdf.setFont('helvetica', 'normal');
     pdf.setFontSize(9);
     pdf.setTextColor(120, 113, 108);
-    pdf.text(`Diekspor pada: ${new Date().toLocaleDateString('id-ID', { dateStyle: 'full' })}`, margin, 24);
+    pdf.text(
+      lang === 'en'
+        ? `Exported on: ${new Date().toLocaleDateString('en-US', { dateStyle: 'full' })}`
+        : `Diekspor pada: ${new Date().toLocaleDateString('id-ID', { dateStyle: 'full' })}`,
+      margin,
+      24
+    );
 
     pdf.addImage(dataUrl, 'PNG', margin, 28, contentWidth, contentHeight);
 
-    pdf.save(`${fileName.replace(/\s+/g, '_')}_KTP_Kopi.pdf`);
+    pdf.save(
+      `${fileName.replace(/\s+/g, '_')}_${lang === 'en' ? 'Coffee_Passport' : 'KTP_Kopi'}.pdf`
+    );
     return true;
   } catch (error) {
     console.error('Failed to export card as PDF fallback:', error);
@@ -550,20 +681,92 @@ export async function exportCardAsPDF(
 export function exportCardAsTXT(
   fileName: string,
   coffee: CoffeeCardItem,
-  mode: ViewMode = 'enthusiast'
+  mode: ViewMode = 'enthusiast',
+  lang: Language = 'id'
 ): boolean {
   try {
+    const item = getLocalizedCoffee(coffee, lang);
     const starString = '★'.repeat(coffee.rating) + '☆'.repeat(5 - coffee.rating);
-    const modeName =
-      mode === 'casual'
-        ? 'CASUAL (ORANG BIASA)'
-        : mode === 'beginner'
-        ? 'BEGINNER (PENIKMAT PEMULA)'
-        : 'ENTHUSIAST (SPESIALIS KOPI)';
 
     const sensoryBar = (val: number) => '■'.repeat(val) + '□'.repeat(5 - val);
 
-    const txtContent = `================================================================================
+    let txtContent = '';
+
+    if (lang === 'en') {
+      const modeName =
+        mode === 'casual'
+          ? 'CASUAL (EVERYDAY SIPPER)'
+          : mode === 'beginner'
+          ? 'BEGINNER (COFFEE EXPLORER)'
+          : 'ENTHUSIAST (SPECIALTY PROVENANCE)';
+
+      txtContent = `================================================================================
+                    GLOBAL SPECIALTY COFFEE REGISTRY
+              OFFICIAL COFFEE PROVENANCE PASSPORT (COFFEE ID)
+================================================================================
+PASSPORT NUMBER: ${coffee.ktpNumber || 'CID-KOPI-001'}
+COFFEE LOT     : ${item.name}
+VIEW ARCHETYPE : ${modeName}
+SATISFACTION   : ${starString} (${coffee.rating}/5)
+REGISTERED     : ${new Date().toLocaleDateString('en-US', { dateStyle: 'full' })}
+
+--------------------------------------------------------------------------------
+[1] TERROIR & BOTANICAL PROVENANCE
+--------------------------------------------------------------------------------
+Botanical Species  : ${item.typeFormatted}
+Terroir / Region   : ${item.region}, ${item.originCountry}
+Elevation (MASL)   : ${item.altitudeRange}
+Post-Harvest Craft : ${item.process}
+Roast Profile      : ${item.roastLevelFormatted}
+Cultivar / Variety : ${coffee.varietal || '-'}
+Producer / Station : ${coffee.producer || '-'}
+Roaster            : ${coffee.roaster || '-'}
+Crop / Harvest Year: ${coffee.harvestYear || '-'}
+${coffee.scaScore ? `SCA Cupping Score  : ${coffee.scaScore.toFixed(2)} / 100 (Grade 1 Specialty)\n` : ''}--------------------------------------------------------------------------------
+[2] CUPPING NOTES & SENSORY SPECTRUM
+--------------------------------------------------------------------------------
+Primary Impression : "${item.casualDescription || item.generalCharacter}"
+Tasting Notes      : ${item.flavourNotes.join(', ')}
+
+Sensory Scale:
+- Acidity          : [${sensoryBar(coffee.acidity)}] (${coffee.acidity}/5)
+- Body Depth       : [${sensoryBar(coffee.body)}] (${coffee.body}/5)
+- Natural Sweetness: [${sensoryBar(coffee.sweetness)}] (${coffee.sweetness}/5)
+
+Caffeine Punch     : ${item.caffeineFeel}
+Serving Ritual     : ${item.bestWayToDrink || 'Fresh pour-over hot / iced'}
+
+--------------------------------------------------------------------------------
+[3] BARISTA DIAL-IN EXTRACTION RECIPE
+--------------------------------------------------------------------------------
+Recommended Method : ${coffee.recommendedBrew?.join(', ') || 'V60 / Pour Over'}
+Brew Ratio         : ${item.brewRecipe?.ratio || '1:15'}
+Water Temperature  : ${item.brewRecipe?.temperature || '92°C'}
+Grind Size         : ${item.brewRecipe?.grindSize || 'Medium-Fine'}
+Target Time        : ${item.brewRecipe?.time || '2m 30s'}
+Extraction Note    : ${item.brewRecipe?.note || 'Gentle spiral pour maintaining slurry temperature'}
+
+${
+  coffee.userNotes
+    ? `--------------------------------------------------------------------------------
+[4] CURATOR'S LOG & REFLECTIONS
+--------------------------------------------------------------------------------
+${coffee.userNotes}
+`
+    : ''
+}================================================================================
+Status: CERTIFIED SINGLE ORIGIN PROVENANCE • GLOBAL COFFEE REGISTRY
+================================================================================
+`;
+    } else {
+      const modeName =
+        mode === 'casual'
+          ? 'CASUAL (ORANG BIASA)'
+          : mode === 'beginner'
+          ? 'BEGINNER (PENIKMAT PEMULA)'
+          : 'ENTHUSIAST (SPESIALIS KOPI)';
+
+      txtContent = `================================================================================
                        REPUBLIK KOPI INDONESIA
                KARTU TANDA PENGENAL KOPI (COFFEE ID CARD)
 ================================================================================
@@ -621,11 +824,12 @@ ${coffee.userNotes}
 Status: TERVERIFIKASI • COFFEE ID REPUBLIK KOPI INDONESIA
 ================================================================================
 `;
+    }
 
     const blob = new Blob([txtContent], { type: 'text/plain;charset=utf-8' });
     const link = document.createElement('a');
     link.href = URL.createObjectURL(blob);
-    link.download = `${fileName.replace(/\s+/g, '_')}_KTP_Kopi.txt`;
+    link.download = `${fileName.replace(/\s+/g, '_')}_${lang === 'en' ? 'Coffee_Passport' : 'KTP_Kopi'}.txt`;
     link.click();
     URL.revokeObjectURL(link.href);
     return true;
@@ -634,4 +838,3 @@ Status: TERVERIFIKASI • COFFEE ID REPUBLIK KOPI INDONESIA
     return false;
   }
 }
-
