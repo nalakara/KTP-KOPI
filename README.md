@@ -97,6 +97,18 @@ Aplikasi dibangun dengan arsitektur hybrid **React SPA + Node.js Express**:
 
 ---
 
+## Cara Menjalankan
+
+```bash
+npm install
+cp .env.example .env   # opsional: isi GEMINI_API_KEY untuk fitur "Lengkapi dengan AI"
+npm run dev
+```
+
+Buka `http://localhost:3000`. Tanpa API key aplikasi tetap berjalan penuh — hanya fitur autocomplete AI yang nonaktif (formulir tetap bisa diisi manual).
+
+---
+
 ## Status Saat Ini (Current Status)
 
 - **Tahap:** **Functional Prototype / High-Fidelity Prototype**.
@@ -120,3 +132,9 @@ Aplikasi dibangun dengan arsitektur hybrid **React SPA + Node.js Express**:
 - **Mode Ekspor PDF:** Fungsi `exportCardAsPDF` di `src/utils/exportCard.ts` memiliki dua cabang: pembuatan dokumen vektor murni saat objek data `CoffeeCardItem` tersedia (sangat direkomendasikan karena hasil cetak tajam dan teks dapat di-blok), dan fallback raster HTML snapshot jika objek data tidak disertakan.
 - **Konfigurasi Lingkungan:** Pastikan variabel `GEMINI_API_KEY` terdefinisi di file `.env`.
 - **Mode Tampilan:** Preferensi mode tampilan (`casual` | `beginner` | `enthusiast`) kini disimpan di `localStorage` dan dapat diatur melalui tombol pengaturan di navigasi atas maupun footer.
+
+---
+
+## License
+
+MIT License © 2026 Yudhan Sebastian
