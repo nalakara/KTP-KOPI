@@ -3,6 +3,7 @@ import { CoffeeCardItem, CoffeeType, RoastLevel, Language } from '../types';
 import { TRANSLATIONS } from '../i18n/translations';
 import {
   X,
+  Coffee,
   Sparkles,
   Wand2,
   Loader2,

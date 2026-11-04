@@ -8,6 +8,7 @@ import { getLocalizedCoffee } from '../utils/cardLocalization';
 import { TRANSLATIONS } from '../i18n/translations';
 import {
   Download,
+  Coffee,
   FileText,
   FileCode,
   Image as ImageIcon,
