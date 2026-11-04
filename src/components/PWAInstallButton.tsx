@@ -42,12 +42,12 @@ export const PWAInstallButton: React.FC = () => {
             <div className="w-full max-w-sm rounded-none bg-[#F0E5C5] p-5 shadow-2xl border border-[#332B1C] text-[#332B1C]">
               <div className="flex items-center justify-between pb-3 border-b border-[#332B1C]">
                 <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-none border border-[#332B1C] bg-[#E2F4CB] text-[#332B1C] flex items-center justify-center font-bold text-sm">
-                    ☕
+                  <div className="w-8 h-8 rounded border border-[#201B15] bg-[#201B15] text-[#F6F4EE] flex items-center justify-center font-bold text-sm">
+                    <Coffee className="w-4 h-4" />
                   </div>
                   <div>
-                    <h3 className="text-sm font-bold font-display uppercase tracking-wide">Install Coffee ID</h3>
-                    <p className="text-[10px] text-[#332B1C]/75">Akses cepat offline di iPhone/iPad</p>
+                    <h3 className="text-sm font-semibold font-display">Install Coffee ID</h3>
+                    <p className="text-xs text-[#685F53]">Akses cepat offline di iPhone/iPad</p>
                   </div>
                 </div>
                 <button

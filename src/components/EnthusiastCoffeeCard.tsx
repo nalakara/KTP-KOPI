@@ -82,8 +82,8 @@ export const EnthusiastCoffeeCard: React.FC<EnthusiastCoffeeCardProps> = ({
         <div className="bg-[#332B1C] p-3 text-[#F0E5C5] border-b border-[#332B1C]">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <div className="w-7 h-7 rounded-full bg-[#F0E5C5]/10 border border-[#F0E5C5]/40 flex items-center justify-center font-bold text-xs text-[#E2F4CB]">
-                {lang === 'en' ? '🧭' : '☕'}
+              <div className="w-7 h-7 rounded bg-[#F0E5C5]/10 border border-[#F0E5C5]/40 flex items-center justify-center font-bold text-xs text-[#E2F4CB]">
+                <Coffee className="w-4 h-4 text-[#E2F4CB]" />
               </div>
               <div>
                 <h4 className="text-[11px] uppercase tracking-wider font-display font-medium text-[#E2F4CB] leading-tight">
@@ -253,8 +253,9 @@ export const EnthusiastCoffeeCard: React.FC<EnthusiastCoffeeCardProps> = ({
                   </div>
                 </div>
                 {item.brewRecipe.note && (
-                  <p className="text-[10px] font-mono-code text-[#332B1C]/80 italic pt-1 border-t border-[#332B1C]/20">
-                    💡 {item.brewRecipe.note}
+                  <p className="text-[10px] font-mono-code text-[#332B1C]/80 italic pt-1 border-t border-[#332B1C]/20 flex items-center gap-1">
+                    <Sparkles className="w-3 h-3 text-[#332B1C]/70 inline" />
+                    <span>{item.brewRecipe.note}</span>
                   </p>
                 )}
               </div>

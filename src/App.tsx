@@ -287,28 +287,28 @@ export default function App() {
   }, [filteredCoffees, groupBy, lang]);
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#F0E5C5] text-[#332B1C] font-mono-code selection:bg-[#E2F4CB] selection:text-[#332B1C]">
+    <div className="min-h-screen flex flex-col bg-[#F6F4EE] text-[#201B15] selection:bg-[#E2E8D8] selection:text-[#201B15]">
       {/* Offline Status Indicator */}
       <OfflineIndicator />
 
       {/* Top Navigation Bar */}
-      <header className="sticky top-0 z-30 bg-[#F0E5C5]/95 backdrop-blur-md border-b border-[#332B1C] no-print">
+      <header className="sticky top-0 z-30 bg-[#F6F4EE] border-b border-[#DCD7CA] no-print">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
           {/* Brand Logo */}
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-none border border-[#332B1C] bg-[#E2F4CB] text-[#332B1C] flex items-center justify-center font-bold text-lg">
-              ☕
+            <div className="w-9 h-9 rounded border border-[#201B15] bg-[#201B15] text-[#F6F4EE] flex items-center justify-center font-bold">
+              <Coffee className="w-5 h-5" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="font-display font-medium text-2xl text-[#332B1C] tracking-tight leading-none">
+                <span className="font-display font-semibold text-2xl text-[#201B15] tracking-tight leading-none">
                   {t.brandTitle}
                 </span>
-                <span className="text-[9px] font-mono-code font-bold uppercase tracking-widest bg-[#E2F4CB] text-[#332B1C] px-2 py-0.5 rounded-full border border-[#332B1C]">
+                <span className="text-[10px] font-medium bg-[#E2E8D8] text-[#201B15] px-2 py-0.5 rounded border border-[#201B15]/20">
                   {t.brandBadge}
                 </span>
               </div>
-              <p className="text-[10px] text-[#332B1C]/75 hidden sm:block mt-0.5">
+              <p className="text-xs text-[#685F53] hidden sm:block mt-0.5">
                 {t.brandTagline}
               </p>
             </div>
@@ -369,7 +369,7 @@ export default function App() {
             <button
               id="btn-active-mode-indicator"
               onClick={() => setIsSettingsOpen(true)}
-              className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full border border-[#332B1C] bg-[#E2F4CB] text-[#332B1C] hover:bg-[#332B1C] hover:text-[#F0E5C5] text-[10px] font-bold transition"
+              className="inline-flex items-center gap-1.5 px-3 py-1 rounded border border-[#201B15] bg-[#E2E8D8] text-[#201B15] hover:bg-[#201B15] hover:text-[#F6F4EE] text-xs font-medium transition"
               title={
                 lang === 'en'
                   ? 'Click to adjust presentation archetype in Settings'
@@ -377,11 +377,11 @@ export default function App() {
               }
             >
               <span>
-                {viewMode === 'casual' && `😊 ${t.modeCasualTitle}`}
-                {viewMode === 'beginner' && `🌱 ${t.modeBeginnerTitle}`}
-                {viewMode === 'enthusiast' && `📜 ${t.modeEnthusiastTitle}`}
+                {viewMode === 'casual' && t.modeCasualTitle}
+                {viewMode === 'beginner' && t.modeBeginnerTitle}
+                {viewMode === 'enthusiast' && t.modeEnthusiastTitle}
               </span>
-              <Settings className="w-2.5 h-2.5 ml-0.5" />
+              <Settings className="w-3 h-3 ml-0.5" />
             </button>
           </div>
           <div className="text-[10px] text-[#332B1C]/70">
@@ -486,12 +486,12 @@ export default function App() {
                 id="filter-rating-select"
                 value={minRating}
                 onChange={(e) => setMinRating(Number(e.target.value))}
-                className="w-full rounded-none border border-[#332B1C] bg-[#F0E5C5] px-2 py-1.5 text-[#332B1C] text-xs font-mono-code focus:outline-none focus:ring-1 focus:ring-[#332B1C] cursor-pointer"
+                className="w-full rounded border border-[#DCD7CA] bg-white px-2 py-1.5 text-[#201B15] text-xs focus:outline-none focus:ring-1 focus:ring-[#201B15] cursor-pointer"
               >
-                <option value={0} className="bg-[#F0E5C5] text-[#332B1C]">{t.filterAllRatings}</option>
-                <option value={5} className="bg-[#F0E5C5] text-[#332B1C]">★★★★★ (5 {lang === 'en' ? 'Stars' : 'Bintang'})</option>
-                <option value={4} className="bg-[#F0E5C5] text-[#332B1C]">★★★★☆ (4+ {lang === 'en' ? 'Stars' : 'Bintang'})</option>
-                <option value={3} className="bg-[#F0E5C5] text-[#332B1C]">★★★☆☆ (3+ {lang === 'en' ? 'Stars' : 'Bintang'})</option>
+                <option value={0}>{t.filterAllRatings}</option>
+                <option value={5}>5 {lang === 'en' ? 'Stars' : 'Bintang'}</option>
+                <option value={4}>4+ {lang === 'en' ? 'Stars' : 'Bintang'}</option>
+                <option value={3}>3+ {lang === 'en' ? 'Stars' : 'Bintang'}</option>
               </select>
             </div>
 
@@ -542,8 +542,8 @@ export default function App() {
                   </span>
                 )}
                 {minRating > 0 && (
-                  <span className="px-2 py-0.5 rounded-full border border-[#332B1C] bg-[#E2F4CB] text-[#332B1C] text-[10px]">
-                    ★ {minRating}+
+                  <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded border border-[#201B15]/20 bg-[#E2E8D8] text-[#201B15] text-xs">
+                    <Star className="w-3 h-3 fill-current text-[#8C532B]" /> {minRating}+
                   </span>
                 )}
                 {searchQuery && (
@@ -572,9 +572,9 @@ export default function App() {
 
         {/* COFFEE CARDS LIST & GROUPS */}
         {filteredCoffees.length === 0 ? (
-          <div className="text-center py-12 px-4 rounded-none border border-[#332B1C] bg-[#F0E5C5] space-y-3">
-            <div className="w-12 h-12 rounded-none border border-[#332B1C] bg-[#E2F4CB] text-[#332B1C] flex items-center justify-center text-xl mx-auto">
-              🔍
+          <div className="text-center py-12 px-4 rounded border border-[#DCD7CA] bg-white space-y-3">
+            <div className="w-12 h-12 rounded border border-[#DCD7CA] bg-[#EFECE3] text-[#201B15] flex items-center justify-center mx-auto">
+              <Search className="w-5 h-5 text-[#685F53]" />
             </div>
             <h3 className="text-base font-bold text-[#332B1C]">
               {t.emptyNotFoundTitle}

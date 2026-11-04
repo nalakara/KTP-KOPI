@@ -265,10 +265,11 @@ export const AddCoffeeModal: React.FC<AddCoffeeModalProps> = ({
         {/* Modal Header */}
         <div className="flex items-center justify-between pb-3 border-b border-[#332B1C]">
           <div>
-            <h2 className="text-2xl font-medium font-display tracking-tight text-[#332B1C] flex items-center gap-2">
-              <span>☕ {t.addModalTitle}</span>
+            <h2 className="text-2xl font-semibold font-display tracking-tight text-[#201B15] flex items-center gap-2">
+              <Coffee className="w-5 h-5 text-[#8C532B]" />
+              <span>{t.addModalTitle}</span>
             </h2>
-            <p className="text-[11px] text-[#332B1C]/75 mt-0.5">
+            <p className="text-xs text-[#685F53] mt-0.5">
               {t.addModalSubtitle}
             </p>
           </div>
@@ -284,8 +285,8 @@ export const AddCoffeeModal: React.FC<AddCoffeeModalProps> = ({
         {/* Smart AI Auto-Complete Highlight Box */}
         <div className="mt-4 p-3 rounded-none bg-[#E2F4CB] border border-[#332B1C] space-y-2.5">
           <div className="flex items-start justify-between gap-2">
-            <div className="flex items-center gap-2 text-[#332B1C] font-bold text-xs uppercase tracking-wide">
-              <Sparkles className="w-3.5 h-3.5 text-[#332B1C]" />
+            <div className="flex items-center gap-2 text-[#201B15] font-semibold text-xs">
+              <Sparkles className="w-3.5 h-3.5 text-[#8C532B]" />
               <span>{t.addAiCardTitle}</span>
             </div>
             <span className="text-[9px] bg-[#F0E5C5] text-[#332B1C] border border-[#332B1C] font-bold px-1.5 py-0.5 rounded-full">

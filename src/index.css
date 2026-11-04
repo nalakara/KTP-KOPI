@@ -2,71 +2,74 @@
 
 @layer base {
   :root {
-    --bg-primary: #F0E5C5;
-    --color-secondary: #332B1C;
-    --color-tertiary: #E2F4CB;
-    --color-neutral: #121212;
-    --border-main: #332B1C;
+    --bg-primary: #F6F4EE;
+    --bg-surface: #FFFFFF;
+    --bg-muted: #EFECE3;
+    --color-secondary: #201B15;
+    --color-muted: #685F53;
+    --color-tertiary: #E2E8D8;
+    --color-accent: #8C532B;
+    --color-positive: #2E5C38;
+    --border-main: #DCD7CA;
+    --border-strong: #201B15;
   }
 
   body {
-    font-family: 'IBM Plex Mono', monospace, system-ui;
-    font-size: 12px;
-    line-height: 16px;
-    font-weight: 300;
-    background-color: #F0E5C5;
-    color: #332B1C;
+    font-family: 'IBM Plex Sans', system-ui, -apple-system, sans-serif;
+    font-size: 14px;
+    line-height: 20px;
+    font-weight: 400;
+    background-color: var(--bg-primary);
+    color: var(--color-secondary);
   }
 
   h1, h2, h3, h4, h5, h6 {
     font-family: 'Barlow Condensed', sans-serif;
-    letter-spacing: -0.025em;
+    letter-spacing: -0.015em;
   }
 }
 
 /* Typography tokens */
 .font-display {
   font-family: 'Barlow Condensed', sans-serif;
-  letter-spacing: -0.025em;
+  letter-spacing: -0.015em;
 }
 
 .font-serif-display {
   font-family: 'Barlow Condensed', sans-serif;
-  letter-spacing: -0.025em;
+  letter-spacing: -0.015em;
 }
 
 .font-mono-code {
   font-family: 'IBM Plex Mono', monospace;
+  font-variant-numeric: tabular-nums;
 }
 
-/* Gradient border shell & elevated surface */
+/* Framed Sheet Card Surfaces (no heavy 3D clay, no murky gradients) */
 .card-shell {
-  background: linear-gradient(168deg, rgb(240, 229, 200) 0%, rgb(233, 220, 186) 46%, rgb(226, 210, 172) 100%);
-  border: 1px solid #332B1C;
-  border-radius: 0px;
-  box-shadow: rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(52, 40, 20, 0.55) 0px 1px 2px 0px inset, rgba(52, 40, 20, 0.25) 0px 2px 3px 0px, rgba(52, 40, 20, 0.38) 0px 18px 44px 0px;
-  padding: 0px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-main);
+  border-radius: 6px;
+  padding: 0;
 }
 
 .card-surface {
-  background: rgba(240, 229, 197, 0.55);
-  border: 1px solid rgb(51, 43, 28);
-  border-radius: 0px;
-  padding: 9.5px;
+  background: var(--bg-muted);
+  border: 1px solid var(--border-main);
+  border-radius: 4px;
+  padding: 10px;
 }
 
 .elevated-panel {
-  background-color: #F0E5C5;
-  border: 1px solid #332B1C;
-  border-radius: 0px;
-  box-shadow: rgba(52, 40, 20, 0.25) 0px 1px 2px 0px inset, rgba(52, 40, 20, 0.15) 0px 2px 3px 0px;
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-main);
+  border-radius: 6px;
 }
 
-/* 9999px rounded pills for buttons & controls */
+/* Rounded pills for discrete controls */
 .pill-control {
   border-radius: 9999px;
-  border: 1px solid #332B1C;
-  transition: all 150ms ease;
+  border: 1px solid var(--border-main);
 }
 
 @media print {
@@ -78,4 +81,3 @@
     display: none !important;
   }
 }
-

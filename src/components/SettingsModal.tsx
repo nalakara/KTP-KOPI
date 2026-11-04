@@ -74,8 +74,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
           {/* SECTION 1: BAHASA & GAYA PENULISAN (INTERPRETATION & STYLING) */}
           <section className="space-y-3">
             <div className="flex items-center gap-2 pb-1 border-b border-[#332B1C]/30">
-              <Languages className="w-4 h-4 text-[#332B1C]" />
-              <h3 className="text-xs font-bold uppercase tracking-wider text-[#332B1C]">
+              <Languages className="w-4 h-4 text-[#8C532B]" />
+              <h3 className="text-xs font-semibold text-[#201B15]">
                 {t.settingsSectionLanguage}
               </h3>
             </div>
@@ -103,7 +103,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                       </span>
                     )}
                   </div>
-                  <h4 className="font-bold text-xs uppercase tracking-wide">
+                  <h4 className="font-semibold text-xs text-[#201B15]">
                     Bahasa Indonesia
                   </h4>
                   <div className="inline-block mt-1 px-1.5 py-0.5 rounded text-[9px] border border-dashed border-current">
@@ -138,7 +138,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                       </span>
                     )}
                   </div>
-                  <h4 className="font-bold text-xs uppercase tracking-wide">
+                  <h4 className="font-semibold text-xs text-[#201B15]">
                     English (Specialty)
                   </h4>
                   <div className="inline-block mt-1 px-1.5 py-0.5 rounded text-[9px] border border-dashed border-current">
@@ -159,8 +159,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
           {/* SECTION 2: MODE TAMPILAN (TINGKAT PEMAHAMAN KOPI) */}
           <section className="space-y-3 pt-2">
             <div className="flex items-center gap-2 pb-1 border-b border-[#332B1C]/30">
-              <Eye className="w-4 h-4 text-[#332B1C]" />
-              <h3 className="text-xs font-bold uppercase tracking-wider text-[#332B1C]">
+              <Eye className="w-4 h-4 text-[#8C532B]" />
+              <h3 className="text-xs font-semibold text-[#201B15]">
                 {t.settingsSectionViewMode}
               </h3>
             </div>
@@ -176,27 +176,27 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               <button
                 type="button"
                 onClick={() => onViewModeChange('casual')}
-                className={`p-3 text-left border transition relative flex flex-col justify-between ${
+                className={`p-3 text-left border rounded transition relative flex flex-col justify-between ${
                   viewMode === 'casual'
-                    ? 'bg-[#332B1C] text-[#F0E5C5] border-[#332B1C]'
-                    : 'bg-[#F0E5C5] text-[#332B1C] border-[#332B1C] hover:bg-[#332B1C]/5'
+                    ? 'bg-[#201B15] text-[#F6F4EE] border-[#201B15]'
+                    : 'bg-white text-[#201B15] border-[#DCD7CA] hover:bg-[#EFECE3]'
                 }`}
               >
                 <div>
                   <div className="flex items-center justify-between mb-1.5">
-                    <span className="text-lg">😊</span>
+                    <span className="text-xs font-semibold px-1.5 py-0.5 rounded bg-[#E2E8D8] text-[#201B15]">Casual</span>
                     {viewMode === 'casual' && (
-                      <span className="text-[9px] font-bold uppercase px-1.5 py-0.5 rounded-full bg-[#E2F4CB] text-[#332B1C] border border-[#332B1C]">
+                      <span className="text-[10px] font-medium px-1.5 py-0.5 rounded bg-[#8C532B] text-white">
                         {t.settingsActiveBadge}
                       </span>
                     )}
                   </div>
-                  <h4 className="font-bold text-xs uppercase tracking-wide">
+                  <h4 className="font-semibold text-xs">
                     {t.modeCasualTitle}
                   </h4>
                   <p
                     className={`text-[10px] mt-0.5 ${
-                      viewMode === 'casual' ? 'text-[#E2F4CB]' : 'text-[#332B1C]/70'
+                      viewMode === 'casual' ? 'text-[#E2E8D8]' : 'text-[#685F53]'
                     }`}
                   >
                     {t.modeCasualSubtitle}
@@ -204,7 +204,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 </div>
                 <p
                   className={`text-[10px] mt-2.5 leading-snug ${
-                    viewMode === 'casual' ? 'text-[#F0E5C5]/90' : 'text-[#332B1C]/75'
+                    viewMode === 'casual' ? 'text-[#F6F4EE]/90' : 'text-[#685F53]'
                   }`}
                 >
                   {t.modeCasualDesc}
@@ -215,27 +215,27 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               <button
                 type="button"
                 onClick={() => onViewModeChange('beginner')}
-                className={`p-3 text-left border transition relative flex flex-col justify-between ${
+                className={`p-3 text-left border rounded transition relative flex flex-col justify-between ${
                   viewMode === 'beginner'
-                    ? 'bg-[#332B1C] text-[#F0E5C5] border-[#332B1C]'
-                    : 'bg-[#F0E5C5] text-[#332B1C] border-[#332B1C] hover:bg-[#332B1C]/5'
+                    ? 'bg-[#201B15] text-[#F6F4EE] border-[#201B15]'
+                    : 'bg-white text-[#201B15] border-[#DCD7CA] hover:bg-[#EFECE3]'
                 }`}
               >
                 <div>
                   <div className="flex items-center justify-between mb-1.5">
-                    <span className="text-lg">🌱</span>
+                    <span className="text-xs font-semibold px-1.5 py-0.5 rounded bg-[#E2E8D8] text-[#201B15]">Beginner</span>
                     {viewMode === 'beginner' && (
-                      <span className="text-[9px] font-bold uppercase px-1.5 py-0.5 rounded-full bg-[#E2F4CB] text-[#332B1C] border border-[#332B1C]">
+                      <span className="text-[10px] font-medium px-1.5 py-0.5 rounded bg-[#8C532B] text-white">
                         {t.settingsActiveBadge}
                       </span>
                     )}
                   </div>
-                  <h4 className="font-bold text-xs uppercase tracking-wide">
+                  <h4 className="font-semibold text-xs">
                     {t.modeBeginnerTitle}
                   </h4>
                   <p
                     className={`text-[10px] mt-0.5 ${
-                      viewMode === 'beginner' ? 'text-[#E2F4CB]' : 'text-[#332B1C]/70'
+                      viewMode === 'beginner' ? 'text-[#E2E8D8]' : 'text-[#685F53]'
                     }`}
                   >
                     {t.modeBeginnerSubtitle}
@@ -243,7 +243,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 </div>
                 <p
                   className={`text-[10px] mt-2.5 leading-snug ${
-                    viewMode === 'beginner' ? 'text-[#F0E5C5]/90' : 'text-[#332B1C]/75'
+                    viewMode === 'beginner' ? 'text-[#F6F4EE]/90' : 'text-[#685F53]'
                   }`}
                 >
                   {t.modeBeginnerDesc}
@@ -254,22 +254,22 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               <button
                 type="button"
                 onClick={() => onViewModeChange('enthusiast')}
-                className={`p-3 text-left border transition relative flex flex-col justify-between ${
+                className={`p-3 text-left border rounded transition relative flex flex-col justify-between ${
                   viewMode === 'enthusiast'
-                    ? 'bg-[#332B1C] text-[#F0E5C5] border-[#332B1C]'
-                    : 'bg-[#F0E5C5] text-[#332B1C] border-[#332B1C] hover:bg-[#332B1C]/5'
+                    ? 'bg-[#201B15] text-[#F6F4EE] border-[#201B15]'
+                    : 'bg-white text-[#201B15] border-[#DCD7CA] hover:bg-[#EFECE3]'
                 }`}
               >
                 <div>
                   <div className="flex items-center justify-between mb-1.5">
-                    <span className="text-lg">📜</span>
+                    <span className="text-xs font-semibold px-1.5 py-0.5 rounded bg-[#E2E8D8] text-[#201B15]">Enthusiast</span>
                     {viewMode === 'enthusiast' && (
-                      <span className="text-[9px] font-bold uppercase px-1.5 py-0.5 rounded-full bg-[#E2F4CB] text-[#332B1C] border border-[#332B1C]">
+                      <span className="text-[10px] font-medium px-1.5 py-0.5 rounded bg-[#8C532B] text-white">
                         {t.settingsActiveBadge}
                       </span>
                     )}
                   </div>
-                  <h4 className="font-bold text-xs uppercase tracking-wide">
+                  <h4 className="font-semibold text-xs">
                     {t.modeEnthusiastTitle}
                   </h4>
                   <p
@@ -314,8 +314,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
           {/* SECTION 3: DATA & PENYIMPANAN */}
           <section className="space-y-3 pt-2">
             <div className="flex items-center gap-2 pb-1 border-b border-[#332B1C]/30">
-              <Database className="w-4 h-4 text-[#332B1C]" />
-              <h3 className="text-xs font-bold uppercase tracking-wider text-[#332B1C]">
+              <Database className="w-4 h-4 text-[#8C532B]" />
+              <h3 className="text-xs font-semibold text-[#201B15]">
                 {t.settingsSectionData}
               </h3>
             </div>
@@ -365,8 +365,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
           {/* SECTION 4: INFO SISTEM & APLIKASI */}
           <section className="space-y-2 pt-2">
             <div className="flex items-center gap-2 pb-1 border-b border-[#332B1C]/30">
-              <Info className="w-4 h-4 text-[#332B1C]" />
-              <h3 className="text-xs font-bold uppercase tracking-wider text-[#332B1C]">
+              <Info className="w-4 h-4 text-[#8C532B]" />
+              <h3 className="text-xs font-semibold text-[#201B15]">
                 {lang === 'en' ? 'System & Provenance Engine' : 'Tentang Coffee ID (KTP Kopi)'}
               </h3>
             </div>
